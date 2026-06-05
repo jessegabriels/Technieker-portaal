@@ -4,10 +4,11 @@ const { getAll, getForUser } = require('./lib/orders');
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return cors({});
-
   try {
     const user = requireAuth(event);
-    const orders = user.role === 'admin' ? getAll() : getForUser(user.id);
+    const orders = user.role === 'admin'
+      ? await getAll()
+      : await getForUser(user.id);
     return cors({ orders });
   } catch (err) {
     if (err.message === 'Unauthorized') return cors({ error: 'Niet geautoriseerd.' }, 401);

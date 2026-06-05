@@ -25,7 +25,7 @@ exports.handler = async (event) => {
     const resolvedItems = [];
     for (const item of items) {
       if (!item.articleId || !item.quantity || item.quantity <= 0) continue;
-      const article = findArticle(item.articleId);
+      const article = await findArticle(item.articleId);
       if (!article) continue;
 
       // Department access check
@@ -92,7 +92,7 @@ exports.handler = async (event) => {
     }
 
     // Save order locally
-    const order = createOrder({
+    const order = await createOrder({
       id: orderId,
       userId: user.id,
       userName: user.name,

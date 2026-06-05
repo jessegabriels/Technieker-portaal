@@ -1,23 +1,9 @@
 // netlify/functions/orders-manage.js
-// DELETE → bestelling verwijderen uit het portaal (niet uit Odoo)
-
 const { requireAuth, cors } = require('./lib/auth');
-const { getAll, update } = require('./lib/orders');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
-const DATA_FILE = path.join(os.tmpdir(), 'technician_orders.json');
-
-function removeOrder(id) {
-  const orders = getAll();
-  const filtered = orders.filter(o => o.id !== id);
-  fs.writeFileSync(DATA_FILE, JSON.stringify(filtered, null, 2));
-}
+const { findById, remove } = require('./lib/orders');
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return cors({});
-
   try {
     const user = requireAuth(event);
 
@@ -25,16 +11,12 @@ exports.handler = async (event) => {
       const { id } = JSON.parse(event.body || '{}');
       if (!id) return cors({ error: 'ID is verplicht.' }, 400);
 
-      const all = getAll();
-      const order = all.find(o => o.id === id);
+      const order = await findById(id);
       if (!order) return cors({ error: 'Bestelling niet gevonden.' }, 404);
-
-      // Techniekers mogen enkel eigen bestellingen verwijderen
-      if (user.role !== 'admin' && order.userId !== user.id) {
+      if (user.role !== 'admin' && order.userId !== user.id)
         return cors({ error: 'Geen toegang.' }, 403);
-      }
 
-      removeOrder(id);
+      await remove(id);
       return cors({ success: true });
     }
 

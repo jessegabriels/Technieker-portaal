@@ -1,105 +1,74 @@
-// netlify/functions/lib/users.js
-// 
-// USER STORE — backed by a JSON file in /tmp for demo.
-// For production, replace with a real database (PlanetScale, Supabase, etc.)
-// 
-// User object shape:
-// {
-//   id: string,
-//   username: string,
-//   passwordHash: string,  // SHA-256 hex
-//   name: string,
-//   role: 'admin' | 'technician',
-//   department: string,    // e.g. 'laadpalen' | 'zonnepanelen' | 'algemeen'
-//   active: boolean
-// }
-
+// netlify/functions/lib/users.js — Supabase versie
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
-// os.tmpdir() werkt op zowel Windows als Linux/Mac
-const DATA_FILE = path.join(os.tmpdir(), 'technician_users.json');
+const { db }  = require('./db');
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + 'salt_tech_portal').digest('hex');
 }
 
-function loadUsers() {
-  if (fs.existsSync(DATA_FILE)) {
-    try {
-      return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    } catch {
-      return getDefaultUsers();
-    }
-  }
-  const defaults = getDefaultUsers();
-  saveUsers(defaults);
-  return defaults;
+// DB rij (snake_case) → JS object (camelCase)
+function fromDb(row) {
+  if (!row) return null;
+  return {
+    id:           row.id,
+    username:     row.username,
+    passwordHash: row.password_hash,
+    name:         row.name,
+    role:         row.role,
+    department:   row.department,
+    active:       row.active,
+    createdAt:    row.created_at,
+  };
 }
 
-function saveUsers(users) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-}
-
-function getDefaultUsers() {
-  // Default admin + example technicians — CHANGE PASSWORDS in production
-  return [
-    {
-      id: 'admin-001',
-      username: 'admin',
-      passwordHash: hashPassword('Admin@2024!'),
-      name: 'Beheerder',
-      role: 'admin',
-      department: 'all',
-      active: true,
-    },
-    {
-      id: 'tech-001',
-      username: 'jan.de.smedt',
-      passwordHash: hashPassword('Tech@2024!'),
-      name: 'Jan De Smedt',
-      role: 'technician',
-      department: 'laadpalen',
-      active: true,
-    },
-    {
-      id: 'tech-002',
-      username: 'peter.wouters',
-      passwordHash: hashPassword('Tech@2024!'),
-      name: 'Peter Wouters',
-      role: 'technician',
-      department: 'zonnepanelen',
-      active: true,
-    },
-  ];
+// JS object → DB rij
+function toDb(obj) {
+  const row = {};
+  if (obj.id           !== undefined) row.id            = obj.id;
+  if (obj.username     !== undefined) row.username      = obj.username;
+  if (obj.passwordHash !== undefined) row.password_hash = obj.passwordHash;
+  if (obj.name         !== undefined) row.name          = obj.name;
+  if (obj.role         !== undefined) row.role          = obj.role;
+  if (obj.department   !== undefined) row.department    = obj.department;
+  if (obj.active       !== undefined) row.active        = obj.active;
+  return row;
 }
 
 module.exports = {
   hashPassword,
-  loadUsers,
-  saveUsers,
-  findByUsername: (username) => loadUsers().find(u => u.username === username),
-  findById: (id) => loadUsers().find(u => u.id === id),
-  getAll: () => loadUsers(),
-  create: (user) => {
-    const users = loadUsers();
-    users.push(user);
-    saveUsers(users);
-    return user;
+
+  findByUsername: async (username) => {
+    const rows = await db('users', {
+      filters: `?username=eq.${encodeURIComponent(username)}`
+    });
+    return fromDb(rows?.[0]);
   },
-  update: (id, updates) => {
-    const users = loadUsers();
-    const idx = users.findIndex(u => u.id === id);
-    if (idx === -1) return null;
-    users[idx] = { ...users[idx], ...updates };
-    saveUsers(users);
-    return users[idx];
+
+  findById: async (id) => {
+    const rows = await db('users', { filters: `?id=eq.${encodeURIComponent(id)}` });
+    return fromDb(rows?.[0]);
   },
-  remove: (id) => {
-    const users = loadUsers();
-    const filtered = users.filter(u => u.id !== id);
-    saveUsers(filtered);
+
+  getAll: async () => {
+    const rows = await db('users', { filters: '?order=created_at.asc' });
+    return (rows || []).map(fromDb);
+  },
+
+  create: async (user) => {
+    const rows = await db('users', { method: 'POST', body: toDb(user) });
+    return fromDb(Array.isArray(rows) ? rows[0] : rows);
+  },
+
+  update: async (id, updates) => {
+    const rows = await db('users', {
+      method:  'PATCH',
+      body:    toDb(updates),
+      filters: `?id=eq.${encodeURIComponent(id)}`,
+    });
+    return fromDb(Array.isArray(rows) ? rows[0] : rows);
+  },
+
+  remove: async (id) => {
+    await db('users', { method: 'DELETE', filters: `?id=eq.${encodeURIComponent(id)}` });
   },
 };
