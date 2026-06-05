@@ -427,6 +427,7 @@ export default function AdminArticles() {
               </button>
             </div>
         </Modal>
+      )}
     </div>
   );
 }
