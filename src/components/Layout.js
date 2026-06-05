@@ -12,6 +12,12 @@ const NAV = [
   { path: '/admin/articles', label: 'Artikelen', icon: '🔧', roles: ['admin'] },
 ];
 
+// Logo-instellingen via omgevingsvariabelen (optioneel)
+const LOGO_INITIALS   = process.env.REACT_APP_LOGO_INITIALS   || 'TP';
+const COMPANY_NAME    = process.env.REACT_APP_COMPANY_NAME    || 'Bestelportaal';
+const COMPANY_SUBTITLE = process.env.REACT_APP_COMPANY_SUBTITLE || 'Technieker';
+const LOGO_IMAGE_URL  = process.env.REACT_APP_LOGO_IMAGE_URL  || null;
+
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -29,10 +35,13 @@ export default function Layout({ children }) {
       <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="logo">
-            <span className="logo-mark">TP</span>
+            {LOGO_IMAGE_URL
+              ? <img src={LOGO_IMAGE_URL} alt="logo" className="logo-image" />
+              : <span className="logo-mark">{LOGO_INITIALS}</span>
+            }
             <div>
-              <div className="logo-title">Bestelportaal</div>
-              <div className="logo-sub">Technieker</div>
+              <div className="logo-title">{COMPANY_NAME}</div>
+              <div className="logo-sub">{COMPANY_SUBTITLE}</div>
             </div>
           </div>
         </div>

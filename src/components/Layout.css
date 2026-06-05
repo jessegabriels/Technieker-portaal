@@ -80,3 +80,9 @@
   .menu-toggle { display: flex; }
   .page-content { padding: 20px 16px; }
 }
+
+/* Aangepast logo als afbeelding */
+.logo-image {
+  width: 38px; height: 38px; border-radius: 8px;
+  object-fit: contain; flex-shrink: 0;
+}

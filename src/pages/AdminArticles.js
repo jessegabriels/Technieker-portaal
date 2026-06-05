@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 import '../components/UI.css';
+import Modal from '../components/Modal';
 import './AdminArticles.css';
 
 let XLSX;
@@ -337,12 +338,7 @@ export default function AdminArticles() {
 
       {/* Artikel formulier modal */}
       {showForm && (
-        <div className="modal-overlay"
-          onClick={e => e.target === e.currentTarget && setShowForm(false)}>
-          <div className="modal" style={{ maxWidth: 540 }}>
-            <div className="modal-title">
-              {editId ? 'Artikel bewerken' : 'Nieuw artikel'}
-            </div>
+        <Modal onClose={() => setShowForm(false)} title={editId ? 'Artikel bewerken' : 'Nieuw artikel'} maxWidth={540}>
 
             {formError && (
               <div className="alert alert-error" style={{ marginBottom:16 }}>
@@ -430,9 +426,7 @@ export default function AdminArticles() {
                 Annuleren
               </button>
             </div>
-          </div>
-        </div>
-      )}
+        </Modal>
     </div>
   );
 }

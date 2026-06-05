@@ -1,2 +1,23 @@
 # Local Netlify folder
 .netlify
+
+# Gevoelige bestanden — nooit pushen
+.env.local
+.env
+
+# Dependencies
+node_modules/
+
+# Build output
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS bestanden
+.DS_Store
+Thumbs.db
+
+# Netlify
+.netlify/
