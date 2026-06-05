@@ -1,0 +1,26 @@
+/* src/pages/Login.css */
+.login-page {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px; position: relative; overflow: hidden;
+}
+.login-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240,165,0,0.08) 0%, transparent 70%),
+              radial-gradient(ellipse 60% 40% at 80% 100%, rgba(224,107,0,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.login-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); padding: 40px; width: 100%; max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  position: relative;
+}
+.login-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; }
+.login-logo-mark {
+  width: 48px; height: 48px; background: var(--accent);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 800; font-size: 20px; color: #000;
+}
+.login-logo-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.login-logo-sub { font-size: 12px; color: var(--text3); }
+.login-form { display: flex; flex-direction: column; gap: 18px; }

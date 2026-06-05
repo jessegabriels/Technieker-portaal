@@ -1,0 +1,60 @@
+// src/App.js
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import OrderPage from './pages/OrderPage';
+import HistoryPage from './pages/HistoryPage';
+import AdminUsers from './pages/AdminUsers';
+import AdminArticles from './pages/AdminArticles';
+
+function RequireAuth({ children, adminOnly = false }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><span className="spinner" style={{ width: 32, height: 32 }} /></div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/order" replace />;
+  return children;
+}
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/login" element={user ? <Navigate to="/order" replace /> : <Login />} />
+
+      <Route path="/order" element={
+        <RequireAuth><Layout><OrderPage /></Layout></RequireAuth>
+      } />
+
+      <Route path="/history" element={
+        <RequireAuth><Layout><HistoryPage /></Layout></RequireAuth>
+      } />
+
+      <Route path="/admin/orders" element={
+        <RequireAuth adminOnly><Layout><HistoryPage adminView /></Layout></RequireAuth>
+      } />
+
+      <Route path="/admin/users" element={
+        <RequireAuth adminOnly><Layout><AdminUsers /></Layout></RequireAuth>
+      } />
+
+      <Route path="/admin/articles" element={
+        <RequireAuth adminOnly><Layout><AdminArticles /></Layout></RequireAuth>
+      } />
+
+      <Route path="*" element={<Navigate to={user ? '/order' : '/login'} replace />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}

@@ -1,0 +1,99 @@
+/* src/components/UI.css */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius);
+  font-family: var(--font-display); font-weight: 600; font-size: 14px;
+  border: none; transition: all 0.18s ease; white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent); color: #000;
+}
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--text2);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger {
+  background: transparent; color: var(--error);
+  border: 1px solid var(--error);
+}
+.btn-danger:hover { background: var(--error); color: #fff; }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 99px;
+  font-size: 12px; font-weight: 600; font-family: var(--font-display);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.badge-dept-laadpalen { background: #1a2a4a; color: #60a5fa; border: 1px solid #1e3a6a; }
+.badge-dept-zonnepanelen { background: #2a2000; color: #fbbf24; border: 1px solid #3d3000; }
+.badge-dept-all, .badge-dept-algemeen { background: #1a2a1a; color: #4ade80; border: 1px solid #1e3a1e; }
+.badge-status-confirmed { background: #0d2d1a; color: var(--success); border: 1px solid #1a4a2a; }
+.badge-status-odoo_error { background: #2d0d0d; color: var(--error); border: 1px solid #4a1a1a; }
+.badge-role-admin { background: #2a1a3a; color: #c084fc; border: 1px solid #3d1a5a; }
+.badge-role-technician { background: #1a1d28; color: var(--text2); border: 1px solid var(--border2); }
+
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--text2); letter-spacing: 0.03em; font-family: var(--font-display); }
+.form-input {
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--text); border-radius: var(--radius);
+  padding: 10px 14px; font-size: 14px; transition: border-color 0.15s;
+  width: 100%;
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239098b0' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+.alert {
+  padding: 12px 16px; border-radius: var(--radius);
+  font-size: 14px; display: flex; align-items: flex-start; gap: 10px;
+}
+.alert-error { background: #2d0d0d; border: 1px solid #4a1a1a; color: #fca5a5; }
+.alert-success { background: #0d2d1a; border: 1px solid #1a4a2a; color: #86efac; }
+.alert-warning { background: #2d1f00; border: 1px solid #4a3200; color: #fcd34d; }
+
+.spinner {
+  width: 20px; height: 20px; border: 2px solid var(--border2);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.7s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th {
+  text-align: left; padding: 10px 14px;
+  font-family: var(--font-display); font-size: 12px; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.table td {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  font-size: 14px; color: var(--text2);
+}
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: var(--surface2); color: var(--text); }
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px; animation: fadeIn 0.2s ease;
+}
+.modal {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); padding: 32px;
+  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.modal-title {
+  font-family: var(--font-display); font-size: 20px; font-weight: 700;
+  color: var(--text); margin-bottom: 24px;
+}
