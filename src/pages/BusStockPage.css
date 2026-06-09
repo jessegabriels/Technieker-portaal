@@ -1,0 +1,87 @@
+/* src/pages/BusStockPage.css */
+
+.bus-stock-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+
+/* Samenvatting chips voor admin */
+.bus-summary-row {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+}
+.bus-summary-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 99px; padding: 5px 12px;
+}
+.bus-summary-name  { font-size: 13px; color: var(--text2); }
+.bus-summary-count {
+  font-family: var(--font-display); font-weight: 700; font-size: 13px;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 99px; padding: 0 7px;
+}
+.bus-summary-incoming {
+  font-family: var(--font-display); font-weight: 700; font-size: 12px;
+  color: var(--warning);
+}
+
+.bus-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* Bus card */
+.bus-card { padding: 0; overflow: hidden; }
+.bus-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; cursor: pointer; transition: background 0.12s;
+}
+.bus-card-header:hover { background: var(--surface2); }
+.bus-card-left { display: flex; align-items: center; gap: 14px; }
+.bus-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 16px; color: #000;
+}
+.bus-card-name {
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text);
+}
+.bus-card-meta { display: flex; align-items: center; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.bus-stat { font-size: 12px; color: var(--text3); }
+
+/* Tabel */
+.bus-table { margin-top: 12px; }
+
+/* Onderweg sectie */
+.incoming-section { margin-top: 20px; }
+.incoming-title {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.incoming-badge {
+  font-family: var(--font-display); font-weight: 700; font-size: 13px;
+  color: var(--warning); background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3); border-radius: 99px; padding: 3px 10px;
+}
+.incoming-sub { font-size: 12px; color: var(--text3); }
+
+.bus-empty { color: var(--text3); font-size: 14px; padding: 20px 0; }
+
+.bus-card-body { border-top: 1px solid var(--border); }
+
+@media (max-width: 600px) {
+  .bus-card-meta { flex-direction: column; align-items: flex-start; }
+}
+
+/* Serienummer rijen in de stocktabel */
+.serial-row td {
+  padding: 3px 14px 5px 14px !important;
+  border-bottom: none !important;
+  background: var(--surface2);
+}
+.serial-indent {
+  color: var(--text3); font-size: 12px; margin-right: 6px;
+}
+.serial-badge-table {
+  font-family: 'Courier New', monospace; font-size: 12px;
+  background: var(--surface); color: var(--text2);
+  border: 1px solid var(--border2); border-radius: 4px;
+  padding: 1px 8px; letter-spacing: 0.03em;
+}

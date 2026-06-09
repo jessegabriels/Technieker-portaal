@@ -53,6 +53,12 @@ const handlers = {
   'users-manage':     require('../netlify/functions/users-manage'),
   'articles-manage':  require('../netlify/functions/articles-manage'),
   'orders-manage':    require('../netlify/functions/orders-manage'),
+  'pickings-get':     require('../netlify/functions/pickings-get'),
+  'pickings-validate': require('../netlify/functions/pickings-validate'),
+  'bus-stock-get':    require('../netlify/functions/bus-stock-get'),
+  'picking-add-line':    require('../netlify/functions/picking-add-line'),
+  'picking-remove-line': require('../netlify/functions/picking-remove-line'),
+  'bus-stock-all':       require('../netlify/functions/bus-stock-all'),
 };
 
 // Mount elke handler op alle HTTP-methodes

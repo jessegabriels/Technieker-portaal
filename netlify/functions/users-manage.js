@@ -25,18 +25,21 @@ exports.handler = async (event) => {
       if (all.find(u => u.username === username.toLowerCase()))
         return cors({ error: 'Gebruikersnaam bestaat al.' }, 409);
 
+      const { odooLocationId: newLocId } = JSON.parse(event.body || '{}');
       const newUser = await create({
-        id:           `user-${crypto.randomBytes(4).toString('hex')}`,
-        username:     username.toLowerCase().trim(),
-        passwordHash: hashPassword(password),
+        id:             `user-${crypto.randomBytes(4).toString('hex')}`,
+        username:       username.toLowerCase().trim(),
+        passwordHash:   hashPassword(password),
         name, role, department,
-        active:       true,
+        active:         true,
+        odooLocationId: newLocId ? parseInt(newLocId) : null,
       });
       return cors({ user: sanitize(newUser) });
     }
 
     if (event.httpMethod === 'PUT') {
-      const { id, password, ...updates } = JSON.parse(event.body || '{}');
+      const { id, password, odooLocationId, ...updates } = JSON.parse(event.body || '{}');
+      if (odooLocationId !== undefined) updates.odooLocationId = odooLocationId ? parseInt(odooLocationId) : null;
       if (!id) return cors({ error: 'ID verplicht.' }, 400);
       if (password) updates.passwordHash = hashPassword(password);
       const updated = await update(id, updates);

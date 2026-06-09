@@ -7,6 +7,9 @@ import './Layout.css';
 const NAV = [
   { path: '/order', label: 'Bestellen', icon: '📦', roles: ['technician', 'admin'] },
   { path: '/history', label: 'Mijn bestellingen', icon: '📋', roles: ['technician', 'admin'] },
+  { path: '/pickups', label: 'Ophalen', icon: '🚐', roles: ['technician', 'admin'] },
+  { path: '/place',   label: 'Plaatsen',  icon: '🔧', roles: ['technician', 'admin'] },
+  { path: '/busstock', label: 'Mijn bus',  icon: '🚌', roles: ['technician', 'admin'] },
   { path: '/admin/orders', label: 'Alle bestellingen', icon: '🗂️', roles: ['admin'] },
   { path: '/admin/users', label: 'Gebruikers', icon: '👥', roles: ['admin'] },
   { path: '/admin/articles', label: 'Artikelen', icon: '🔧', roles: ['admin'] },

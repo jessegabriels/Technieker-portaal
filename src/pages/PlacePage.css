@@ -1,0 +1,103 @@
+/* src/pages/PlacePage.css */
+/* Hergebruik de meeste stijlen van PickupsPage via import */
+/* Specifieke stijlen voor PlacePage */
+
+.place-item {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.place-item:last-child { border-bottom: none; }
+.place-item-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.place-item-name { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+.place-item-qty  { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.place-serial-list {
+  display: flex; flex-direction: column; gap: 4px;
+  margin-top: 6px; padding-left: 16px;
+}
+.place-serial-item { display: flex; align-items: center; gap: 8px; }
+
+.place-action-row {
+  display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+}
+
+/* Extra materiaal panel */
+.extra-panel {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 560px; max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  animation: cardIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.extra-panel-header {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+}
+.extra-panel-title {
+  font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--text);
+}
+.extra-panel-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+.extra-panel-list {
+  flex: 1; overflow-y: auto; padding: 8px 12px;
+}
+
+.extra-stock-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 6px; background: var(--surface); transition: all 0.15s;
+}
+.extra-stock-card:hover   { border-color: var(--border2); }
+.extra-stock-card.selected { border-color: var(--accent); background: rgba(240,165,0,0.04); }
+.extra-stock-info  { flex: 1; min-width: 0; }
+.extra-stock-name  { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.extra-stock-avail { font-size: 12px; }
+
+.extra-panel-footer {
+  padding: 14px 20px; border-top: 1px solid var(--border);
+}
+.extra-cart-summary {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px;
+  max-height: 120px; overflow-y: auto;
+}
+.extra-cart-row {
+  display: flex; justify-content: space-between; font-size: 13px; color: var(--text2);
+  padding: 3px 0;
+}
+
+@media (max-width: 600px) {
+  .place-action-row { flex-direction: column; }
+  .extra-panel { max-width: 100%; margin: 10px; }
+}
+
+/* Verwijderknop per regel */
+.remove-line-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 3px 6px; border-radius: 5px; font-size: 14px;
+  color: var(--text3); transition: all 0.15s; line-height: 1;
+  display: flex; align-items: center; margin-left: 8px; flex-shrink: 0;
+}
+.remove-line-btn:hover:not(:disabled) {
+  background: rgba(239,68,68,0.1); color: var(--error);
+}
+.remove-line-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Secties: gepland vs toegevoegd */
+.items-section {
+  margin-top: 12px;
+}
+.items-section-label {
+  font-family: var(--font-display); font-weight: 700; font-size: 12px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 6px; padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.items-section-extra { margin-top: 16px; }
+.items-section-extra .items-section-label { color: var(--accent); }

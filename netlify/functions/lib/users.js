@@ -10,27 +10,29 @@ function hashPassword(password) {
 function fromDb(row) {
   if (!row) return null;
   return {
-    id:           row.id,
-    username:     row.username,
-    passwordHash: row.password_hash,
-    name:         row.name,
-    role:         row.role,
-    department:   row.department,
-    active:       row.active,
-    createdAt:    row.created_at,
+    id:             row.id,
+    username:       row.username,
+    passwordHash:   row.password_hash,
+    name:           row.name,
+    role:           row.role,
+    department:     row.department,
+    active:         row.active,
+    odooLocationId: row.odoo_location_id || null,
+    createdAt:      row.created_at,
   };
 }
 
 // JS object → DB rij
 function toDb(obj) {
   const row = {};
-  if (obj.id           !== undefined) row.id            = obj.id;
-  if (obj.username     !== undefined) row.username      = obj.username;
-  if (obj.passwordHash !== undefined) row.password_hash = obj.passwordHash;
-  if (obj.name         !== undefined) row.name          = obj.name;
-  if (obj.role         !== undefined) row.role          = obj.role;
-  if (obj.department   !== undefined) row.department    = obj.department;
-  if (obj.active       !== undefined) row.active        = obj.active;
+  if (obj.id             !== undefined) row.id               = obj.id;
+  if (obj.username       !== undefined) row.username         = obj.username;
+  if (obj.passwordHash   !== undefined) row.password_hash    = obj.passwordHash;
+  if (obj.name           !== undefined) row.name             = obj.name;
+  if (obj.role           !== undefined) row.role             = obj.role;
+  if (obj.department     !== undefined) row.department       = obj.department;
+  if (obj.active         !== undefined) row.active           = obj.active;
+  if (obj.odooLocationId !== undefined) row.odoo_location_id = obj.odooLocationId ? parseInt(obj.odooLocationId) : null;
   return row;
 }
 

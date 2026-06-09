@@ -13,6 +13,7 @@ const DEPT_LABELS = {
 const emptyForm = {
   username: '', password: '', name: '',
   role: 'technician', department: 'laadpalen', active: true,
+  odooLocationId: '',
 };
 
 export default function AdminUsers() {
@@ -43,6 +44,7 @@ export default function AdminUsers() {
     setForm({
       username: u.username, password: '', name: u.name,
       role: u.role, department: u.department, active: u.active,
+      odooLocationId: u.odooLocationId || '',
     });
     setEditId(u.id); setError(''); setShowForm(true);
   };
@@ -181,6 +183,15 @@ export default function AdminUsers() {
                 </select>
               </div>
             )}
+            <div className="form-field">
+              <label className="form-label">Buslocatie ID (Odoo)</label>
+              <input className="form-input" type="number" value={form.odooLocationId}
+                placeholder="bijv. 83 (zie Odoo → Locaties)"
+                onChange={e => setForm(f => ({ ...f, odooLocationId: e.target.value }))} />
+              <span style={{ fontSize:11, color:'var(--text3)', marginTop:2 }}>
+                Vereist voor de "Ophalen" functie. Vind het ID in Odoo → Voorraadbeheer → Configuratie → Locaties (debug-modus).
+              </span>
+            </div>
             <div style={{ display:'flex', gap:10, marginTop:8 }}>
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}
                 style={{ flex:1, justifyContent:'center' }}>

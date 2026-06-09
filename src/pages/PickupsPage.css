@@ -1,0 +1,164 @@
+/* src/pages/PickupsPage.css */
+
+/* Header */
+.pickups-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+}
+
+/* Tabs */
+.pickup-tabs {
+  display: flex; gap: 4px; margin-bottom: 16px;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.pickup-tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border: none; background: transparent;
+  color: var(--text3); font-family: var(--font-display); font-weight: 600;
+  font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: all 0.15s; border-radius: var(--radius) var(--radius) 0 0;
+}
+.pickup-tab:hover { color: var(--text2); background: var(--surface2); }
+.pickup-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: transparent; }
+.tab-badge {
+  background: var(--accent); color: #000;
+  font-size: 11px; font-weight: 800; font-family: var(--font-display);
+  padding: 1px 7px; border-radius: 99px; min-width: 20px; text-align: center;
+}
+.pickup-tab-content { min-height: 200px; }
+
+/* Leeg */
+.pickups-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 48px 24px; text-align: center;
+}
+
+/* Pickings lijst */
+.pickups-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* Picking card */
+.picking-card { padding: 0; overflow: hidden; }
+.picking-card-header {
+  display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+  cursor: pointer; transition: background 0.12s; flex-wrap: wrap;
+}
+.picking-card-header:hover { background: var(--surface2); }
+.picking-state-indicator {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 99px; border: 1px solid;
+  flex-shrink: 0; white-space: nowrap;
+}
+.picking-card-info { flex: 1; min-width: 0; }
+.picking-name {
+  font-family: var(--font-display); font-weight: 700; font-size: 15px;
+  color: var(--text); margin-bottom: 4px;
+}
+.picking-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--text3); }
+.picking-card-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.expand-icon { font-size: 10px; color: var(--text3); }
+
+/* Detail */
+.picking-detail { border-top: 1px solid var(--border); padding: 12px 18px 16px; }
+.picking-items-list { display: flex; flex-direction: column; gap: 0; }
+
+/* Artikel met serienummers */
+.item-with-serials {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.item-with-serials:last-child { border-bottom: none; }
+
+.item-main-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.item-name { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+.item-qty-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.item-qty-demand {
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--accent);
+}
+.item-qty-available { font-size: 12px; }
+.item-unit { font-size: 12px; color: var(--text3); }
+
+/* Serienummers — ingesprongen */
+.serial-list {
+  display: flex; flex-direction: column; gap: 4px;
+  margin-top: 6px; padding-left: 16px;
+}
+.serial-item { display: flex; align-items: center; gap: 8px; }
+.serial-arrow { color: var(--text3); font-size: 12px; flex-shrink: 0; }
+.serial-badge {
+  font-family: 'Courier New', monospace; font-size: 12px;
+  background: var(--surface2); color: var(--text2);
+  border: 1px solid var(--border2); border-radius: 4px;
+  padding: 2px 8px; letter-spacing: 0.03em;
+}
+
+/* Locaties */
+.picking-locations {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px; font-size: 13px; color: var(--text2);
+  padding: 10px 14px; background: var(--surface2); border-radius: var(--radius);
+}
+.picking-locations strong { color: var(--text); }
+
+/* Succesbanner */
+.pickup-success {
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3);
+  border-radius: var(--radius-lg); padding: 14px 20px; margin-bottom: 16px;
+}
+.pickup-success-icon {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(34,197,94,0.15); border: 2px solid var(--success);
+  color: var(--success); font-size: 16px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pickup-success-title { font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--success); }
+.pickup-success-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.pickup-success-close {
+  margin-left: auto; background: none; border: none;
+  color: var(--text3); font-size: 20px; cursor: pointer; flex-shrink: 0;
+}
+.pickup-success-close:hover { color: var(--text); }
+
+/* Bevestigingsmodal */
+.confirm-items {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  max-height: 260px; overflow-y: auto; text-align: left;
+}
+.confirm-item-block {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.confirm-item-block:last-child { border-bottom: none; }
+.confirm-item-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.confirm-item-name { font-size: 13px; color: var(--text2); flex: 1; }
+.confirm-item-qty { font-size: 13px; color: var(--text3); flex-shrink: 0; }
+.confirm-item-qty strong { color: var(--accent); font-family: var(--font-display); }
+.confirm-serial-list {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; padding-left: 12px;
+}
+.confirm-serial-badge {
+  font-family: 'Courier New', monospace; font-size: 11px;
+  background: var(--surface); color: var(--text3);
+  border: 1px solid var(--border2); border-radius: 4px; padding: 1px 7px;
+}
+
+@media (max-width: 700px) {
+  .picking-card-header { flex-direction: column; align-items: flex-start; }
+  .picking-card-actions { width: 100%; justify-content: space-between; }
+  .pickup-tabs { overflow-x: auto; }
+}
+
+/* Klantnaam in pickingkaart */
+.picking-partner {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 10px;
+  font-family: var(--font-body); font-weight: 600; font-size: 13px;
+  color: var(--accent);
+  background: rgba(240,165,0,0.08);
+  border: 1px solid rgba(240,165,0,0.2);
+  border-radius: 99px; padding: 1px 10px;
+  vertical-align: middle;
+}
