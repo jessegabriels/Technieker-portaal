@@ -1,5 +1,5 @@
 // src/pages/ReturnPage.js
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 import { createPortal } from 'react-dom';
@@ -14,11 +14,12 @@ const STATE_CONFIG = {
   partially_available: { label: 'Gedeeltelijk klaar',   color: 'var(--warning)', bg: 'rgba(245,158,11,0.1)' },
   done:                { label: 'Verwerkt ✓',           color: 'var(--success)', bg: 'rgba(34,197,94,0.1)' },
   cancel:              { label: 'Geannuleerd',          color: 'var(--error)',   bg: 'rgba(239,68,68,0.1)' },
+  unknown:             { label: 'Niet gevonden in Odoo', color: 'var(--text3)',  bg: 'var(--surface2)' },
 };
 
 // ── Swipe-to-confirm slider ───────────────────────────────────────────────────
 function SwipeToConfirm({ onConfirm, disabled }) {
-  const [value, setValue]       = useState(0);
+  const [value, setValue]         = useState(0);
   const [confirmed, setConfirmed] = useState(false);
 
   const handleChange = (e) => {
@@ -27,11 +28,10 @@ function SwipeToConfirm({ onConfirm, disabled }) {
     setValue(v);
     if (v >= 95) {
       setConfirmed(true);
-      setTimeout(onConfirm, 300); // kleine vertraging voor animatie
+      setTimeout(onConfirm, 300);
     }
   };
 
-  // Snap terug als gebruiker loslaat voor het einde
   const handleRelease = () => {
     if (!confirmed) setValue(0);
   };
@@ -174,8 +174,8 @@ function StepSelect({ stock, loadingStock, cart, setCart, search, setSearch, onN
   );
 }
 
-// ── Stap 2: Bevestiging met swipe slider ──────────────────────────────────────
-function StepConfirm({ cart, stock, onBack, onConfirm, saving, error }) {
+// ── Stap 2: Bevestiging met optionele opmerking + swipe slider ────────────────
+function StepConfirm({ cart, stock, note, setNote, onBack, onConfirm, saving, error }) {
   const cartItems = Object.entries(cart)
     .filter(([, v]) => v.qty > 0)
     .map(([pid, v]) => ({
@@ -218,6 +218,18 @@ function StepConfirm({ cart, stock, onBack, onConfirm, saving, error }) {
         ))}
       </div>
 
+      {/* Opmerking (optioneel) */}
+      <div className="return-note-field">
+        <label>Opmerking (optioneel)</label>
+        <textarea
+          placeholder="Extra info voor de magazijnier..."
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          disabled={saving}
+          maxLength={500}
+        />
+      </div>
+
       {/* Waarschuwing */}
       <div className="return-warning-box">
         <span style={{ fontSize: 20 }}>⚠️</span>
@@ -239,12 +251,9 @@ function StepConfirm({ cart, stock, onBack, onConfirm, saving, error }) {
       )}
 
       <div className="return-modal-footer">
-        {/* Swipe to confirm */}
         <div style={{ marginBottom: 14 }}>
           <SwipeToConfirm onConfirm={onConfirm} disabled={saving} />
         </div>
-
-        {/* Terug knop */}
         <button
           className="btn btn-ghost"
           style={{ width: '100%', justifyContent: 'center' }}
@@ -260,13 +269,14 @@ function StepConfirm({ cart, stock, onBack, onConfirm, saving, error }) {
 
 // ── Gecombineerde modal ───────────────────────────────────────────────────────
 function CreateReturnModal({ token, onClose, onCreated }) {
-  const [step, setStep]           = useState(1); // 1 = selectie, 2 = bevestiging
-  const [stock, setStock]         = useState([]);
-  const [loadingStock, setLoading] = useState(true);
-  const [cart, setCart]           = useState({});
-  const [search, setSearch]       = useState('');
-  const [saving, setSaving]       = useState(false);
-  const [error, setError]         = useState('');
+  const [step, setStep]             = useState(1);
+  const [stock, setStock]           = useState([]);
+  const [loadingStock, setLoading]  = useState(true);
+  const [cart, setCart]             = useState({});
+  const [search, setSearch]         = useState('');
+  const [note, setNote]             = useState('');
+  const [saving, setSaving]         = useState(false);
+  const [error, setError]           = useState('');
 
   useEffect(() => {
     api.getBusStockAll(token)
@@ -281,7 +291,7 @@ function CreateReturnModal({ token, onClose, onCreated }) {
       const items = Object.entries(cart)
         .filter(([, v]) => v.qty > 0)
         .map(([pid, v]) => ({ productId: parseInt(pid), quantity: v.qty, lotNames: v.lots || [] }));
-      const result = await api.createReturn(token, items);
+      const result = await api.createReturn(token, items, note.trim() || undefined);
       onCreated(result.pickingName);
       onClose();
     } catch (e) {
@@ -316,6 +326,7 @@ function CreateReturnModal({ token, onClose, onCreated }) {
         {step === 2 && (
           <StepConfirm
             cart={cart} stock={stock}
+            note={note} setNote={setNote}
             onBack={() => setStep(1)}
             onConfirm={handleCreate}
             saving={saving}
@@ -331,12 +342,14 @@ function CreateReturnModal({ token, onClose, onCreated }) {
 // ── Overzichtspagina ──────────────────────────────────────────────────────────
 export default function ReturnPage() {
   const { token } = useAuth();
-  const [returns, setReturns]       = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [expandedIds, setExpandedIds] = useState(new Set());
-  const [showCreate, setShowCreate] = useState(false);
-  const [success, setSuccess]       = useState('');
-  const [error, setError]           = useState('');
+  const [returns, setReturns]           = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [expandedIds, setExpandedIds]   = useState(new Set());
+  const [showCreate, setShowCreate]     = useState(false);
+  const [success, setSuccess]           = useState('');
+  const [error, setError]               = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deletingIds, setDeletingIds]   = useState(new Set());
 
   const toggleExpand = (id) => {
     const key = String(id);
@@ -361,6 +374,21 @@ export default function ReturnPage() {
     setSuccess(`Retourbon ${name} aangemaakt. De magazijnier wordt op de hoogte gebracht.`);
     load();
     setTimeout(() => setSuccess(''), 7000);
+  };
+
+  const handleDelete = async (id) => {
+    setDeletingIds(prev => new Set(prev).add(id));
+    setConfirmDeleteId(null);
+    try {
+      await api.deleteReturn(token, id);
+      setReturns(prev => prev.filter(r => r.id !== id));
+      setSuccess('Retourbon verwijderd uit het portaal.');
+      setTimeout(() => setSuccess(''), 5000);
+    } catch (e) {
+      setError('Kon retour niet verwijderen: ' + e.message);
+    } finally {
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
+    }
   };
 
   if (loading) return (
@@ -414,13 +442,16 @@ export default function ReturnPage() {
             const cfg        = STATE_CONFIG[ret.state] || STATE_CONFIG.confirmed;
             const key        = String(ret.id);
             const isExpanded = expandedIds.has(key);
+            const isDeleting = deletingIds.has(ret.id);
+            const isConfirmingDelete = confirmDeleteId === ret.id;
+
             return (
               <div key={ret.id} className="picking-card card">
                 {/* Klikbare header */}
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: 14,
                     padding: '14px 18px', flexWrap: 'wrap', cursor: 'pointer' }}
-                  onClick={() => toggleExpand(ret.id)}
+                  onClick={() => { if (!isConfirmingDelete) toggleExpand(ret.id); }}
                 >
                   <div className="picking-state-indicator"
                     style={{ background: cfg.bg, borderColor: cfg.color, border: '1px solid' }}>
@@ -439,28 +470,81 @@ export default function ReturnPage() {
                       {ret.items && <span>{ret.items.length} artikel{ret.items.length !== 1 ? 'en' : ''}</span>}
                     </div>
                   </div>
+
+                  {/* Verwijderknop */}
+                  <button
+                    className="return-delete-btn"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setConfirmDeleteId(isConfirmingDelete ? null : ret.id);
+                    }}
+                    disabled={isDeleting}
+                    title="Verwijder uit portaal"
+                  >
+                    {isDeleting
+                      ? <span className="spinner" style={{ width: 14, height: 14 }} />
+                      : '🗑'}
+                  </button>
+
                   <span className="expand-icon">{isExpanded ? '▲' : '▼'}</span>
                 </div>
 
-                {/* Detail: artikelen */}
-                {isExpanded && ret.items && ret.items.length > 0 && (
+                {/* Inline verwijderbevestiging */}
+                {isConfirmingDelete && (
+                  <div className="return-delete-confirm">
+                    <div className="return-delete-confirm-text">
+                      Verwijder uit portaal? De bon in Odoo blijft bestaan.
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                      <button
+                        className="btn btn-sm"
+                        style={{ background: 'var(--error)', color: '#fff', border: 'none' }}
+                        onClick={() => handleDelete(ret.id)}
+                      >
+                        Verwijderen
+                      </button>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => setConfirmDeleteId(null)}
+                      >
+                        Annuleren
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Detail: opmerking + artikelen */}
+                {isExpanded && (
                   <div className="picking-detail fade-in">
-                    <table className="table">
-                      <thead>
-                        <tr><th>Artikel</th><th>Hoeveelheid</th><th>Eenheid</th></tr>
-                      </thead>
-                      <tbody>
-                        {ret.items.map((item, i) => (
-                          <tr key={i}>
-                            <td style={{ color: 'var(--text)', fontWeight: 500 }}>{item.productName}</td>
-                            <td style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--accent)' }}>
-                              {item.qty}
-                            </td>
-                            <td style={{ color: 'var(--text3)' }}>{item.unit}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    {ret.note && (
+                      <div className="return-detail-note">
+                        <span className="return-detail-note-label">Opmerking</span>
+                        <span className="return-detail-note-text">{ret.note}</span>
+                      </div>
+                    )}
+                    {ret.items && ret.items.length > 0 && (
+                      <table className="table">
+                        <thead>
+                          <tr><th>Artikel</th><th>Hoeveelheid</th><th>Eenheid</th></tr>
+                        </thead>
+                        <tbody>
+                          {ret.items.map((item, i) => (
+                            <tr key={i}>
+                              <td style={{ color: 'var(--text)', fontWeight: 500 }}>{item.productName}</td>
+                              <td style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--accent)' }}>
+                                {item.qty}
+                              </td>
+                              <td style={{ color: 'var(--text3)' }}>{item.unit}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                    {(!ret.items || ret.items.length === 0) && !ret.note && (
+                      <div style={{ padding: '12px 16px', color: 'var(--text3)', fontSize: 13 }}>
+                        Geen details beschikbaar.
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

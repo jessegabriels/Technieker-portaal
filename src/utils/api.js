@@ -41,8 +41,9 @@ export const api = {
   getBusStockAll: (t) => apiFetch('/bus-stock-all', {}, t),
 
   // Retour
-  getReturns:   (t)        => apiFetch('/return-create', {}, t),
-  createReturn: (t, items) => apiFetch('/return-create', { method: 'POST', body: JSON.stringify({ items }) }, t),
+  getReturns:   (t)              => apiFetch('/return-create', {}, t),
+  createReturn: (t, items, note) => apiFetch('/return-create', { method: 'POST', body: JSON.stringify({ items, note }) }, t),
+  deleteReturn: (t, id)          => apiFetch('/return-create', { method: 'DELETE', body: JSON.stringify({ id }) }, t),
 
   getUsers:   (t)    => apiFetch('/users-manage', {}, t),
   createUser: (t, d) => apiFetch('/users-manage', { method: 'POST',   body: JSON.stringify(d) }, t),
