@@ -178,6 +178,17 @@ export default function BusStockPage() {
 
   return (
     <div className="fade-in">
+      {/* Vaste verantwoordelijkheidsmelding */}
+      <div className="responsibility-notice">
+        <span style={{ fontSize: 20 }}>⚠️</span>
+        <div>
+          <strong>Jij bent zelf verantwoordelijk voor jouw stock.</strong>
+          <span style={{ marginLeft: 6, color: 'var(--text2)', fontSize: 13 }}>
+            Controleer regelmatig je bestelbus en meld afwijkingen aan de magazijnier.
+          </span>
+        </div>
+      </div>
+
       {warning && <div className="alert alert-warning" style={{ marginBottom: 16 }}><span>⚠</span> {warning}</div>}
       {error   && <div className="alert alert-error"   style={{ marginBottom: 16 }}><span>⚠</span> {error}</div>}
 

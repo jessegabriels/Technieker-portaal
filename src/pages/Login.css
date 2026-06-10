@@ -24,3 +24,34 @@
 .login-logo-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
 .login-logo-sub { font-size: 12px; color: var(--text3); }
 .login-form { display: flex; flex-direction: column; gap: 18px; }
+
+/* Login licht thema */
+[data-theme="light"] .login-page { background: var(--bg); }
+[data-theme="light"] .login-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(217,119,6,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(180,83,9,0.06) 0%, transparent 60%);
+}
+[data-theme="light"] .login-card {
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  border-color: var(--border);
+}
+
+/* Company logo op login pagina */
+.login-company-logo {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+.login-logo-img {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+.login-logo {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  margin-bottom: 28px !important;
+}

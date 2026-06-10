@@ -77,24 +77,40 @@ exports.handler = async (event) => {
       { fields: ['id', 'move_id', 'product_id', 'lot_id', 'quantity', 'qty_done'] }
     );
 
-    // Groepeer serienummers per move_id
-    const serialsByMoveId = {};
+    // Groepeer move lines + serienummers per move_id
+    const serialsByMoveId   = {};
+    const moveLinesByMoveId = {};
     for (const ml of (moveLines || [])) {
       const moveId  = Array.isArray(ml.move_id) ? ml.move_id[0] : ml.move_id;
-      // lot_id is een Many2one: [id, "SN-12345"] of false
-      const lotName = Array.isArray(ml.lot_id) && ml.lot_id[0]
-        ? ml.lot_id[1]
-        : null;
+      const lotId   = Array.isArray(ml.lot_id) && ml.lot_id[0] ? ml.lot_id[0] : null;
+      const lotName = Array.isArray(ml.lot_id) && ml.lot_id[0] ? ml.lot_id[1] : null;
 
       if (!moveId) continue;
-      if (!serialsByMoveId[moveId]) serialsByMoveId[moveId] = [];
+
+      if (!serialsByMoveId[moveId])   serialsByMoveId[moveId]   = [];
+      if (!moveLinesByMoveId[moveId]) moveLinesByMoveId[moveId] = [];
+
+      // Move line detail (voor bewerken)
+      moveLinesByMoveId[moveId].push({
+        id:       ml.id,
+        lotId,
+        lotName,
+        quantity: ml.quantity || 0,
+        qtyDone:  ml.qty_done || 0,
+      });
+
       if (lotName && !serialsByMoveId[moveId].includes(lotName)) {
         serialsByMoveId[moveId].push(lotName);
       }
     }
 
     // ── 4. Verwerk pickings ──────────────────────────────────────────────────
-    const pickings = rawPickings.map(p => {
+    // Filter retourpickings uit de uitkomst — die horen in ReturnPage, niet in PlacePage
+    const filteredPickings = direction === 'out'
+      ? rawPickings.filter(p => !String(p.origin || '').startsWith('RETOUR-'))
+      : rawPickings;
+
+    const pickings = filteredPickings.map(p => {
       const origin      = p.origin || '';
       // Bestellingen hebben een origin die begint met "ORD-" (portaalbestelling)
       const isOrder     = /^ORD-\d+/i.test(origin);
@@ -114,18 +130,22 @@ exports.handler = async (event) => {
         items: (p.move_ids || []).map(id => {
           const m = movesById[id];
           if (!m) return null;
-          const desc = m.description_picking || '';
+          const desc  = m.description_picking || '';
+          const lines = moveLinesByMoveId[m.id] || [];
           return {
-            id:           m.id,
-            productName:  Array.isArray(m.product_id) ? m.product_id[1] : 'Onbekend product',
-            qtyDemand:    m.product_uom_qty || 0,
-            qtyAvailable: m.quantity        || 0,
-            unit:         Array.isArray(m.product_uom) ? m.product_uom[1] : '',
-            state:        m.state,
-            serials:      serialsByMoveId[m.id] || [],
-            // Regels toegevoegd via het portaal hebben een [EXTRA] marker
-            isExtra:      desc.startsWith('[EXTRA]'),
-            addedBy:      desc.startsWith('[EXTRA]') ? desc.replace('[EXTRA] ', '') : null,
+            id:              m.id,
+            productName:     Array.isArray(m.product_id) ? m.product_id[1] : 'Onbekend product',
+            productId:       Array.isArray(m.product_id) ? m.product_id[0] : m.product_id,
+            qtyDemand:       m.product_uom_qty || 0,
+            qtyAvailable:    m.quantity        || 0,
+            unit:            Array.isArray(m.product_uom) ? m.product_uom[1] : '',
+            uomId:           Array.isArray(m.product_uom) ? m.product_uom[0] : null,
+            state:           m.state,
+            serials:         lines.filter(l => l.lotName).map(l => l.lotName),
+            moveLines:       lines,
+            isSerialTracked: lines.length > 0 && lines.some(l => l.lotId !== null),
+            isExtra:         desc.startsWith('[EXTRA]'),
+            addedBy:         desc.startsWith('[EXTRA]') ? desc.replace('[EXTRA] ', '') : null,
           };
         }).filter(Boolean),
       };

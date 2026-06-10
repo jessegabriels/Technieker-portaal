@@ -15,32 +15,35 @@ async function apiFetch(path, options = {}, token = null) {
 export const api = {
   login: (u, p) => apiFetch('/auth-login', { method: 'POST', body: JSON.stringify({ username: u, password: p }) }),
 
-  // Artikelen
-  getArticles:      (t)       => apiFetch('/articles-get', {}, t),
-  adminGetArticles: (t)       => apiFetch('/articles-manage', {}, t),
-  createArticle:    (t, d)    => apiFetch('/articles-manage', { method: 'POST',   body: JSON.stringify(d) }, t),
-  updateArticle:    (t, d)    => apiFetch('/articles-manage', { method: 'PUT',    body: JSON.stringify(d) }, t),
-  deleteArticle:    (t, id)   => apiFetch('/articles-manage', { method: 'DELETE', body: JSON.stringify({ id }) }, t),
+  getArticles:      (t)    => apiFetch('/articles-get', {}, t),
+  adminGetArticles: (t)    => apiFetch('/articles-manage', {}, t),
+  createArticle:    (t, d) => apiFetch('/articles-manage', { method: 'POST',   body: JSON.stringify(d) }, t),
+  updateArticle:    (t, d) => apiFetch('/articles-manage', { method: 'PUT',    body: JSON.stringify(d) }, t),
+  deleteArticle:  (t, id)  => apiFetch('/articles-manage', { method: 'DELETE', body: JSON.stringify({ id }) }, t),
 
-  // Portaalbestellingen
   createOrder:  (t, items, note) => apiFetch('/orders-create', { method: 'POST', body: JSON.stringify({ items, note }) }, t),
   getOrders:    (t)               => apiFetch('/orders-get', {}, t),
   deleteOrder:  (t, id)           => apiFetch('/orders-manage', { method: 'DELETE', body: JSON.stringify({ id }) }, t),
 
-  // Ophalen (MAOP naar bus)
-  getPickings:     (t)   => apiFetch('/pickings-get?direction=in', {}, t),
+  // Ophalen (MAOP)
+  getPickings:     (t)    => apiFetch('/pickings-get?direction=in', {}, t),
   validatePicking: (t, id) => apiFetch('/pickings-validate', { method: 'POST', body: JSON.stringify({ pickingId: id }) }, t),
 
-  // Plaatsen (WH/OUT van bus naar klant)
-  getOutboundPickings: (t)              => apiFetch('/pickings-get?direction=out', {}, t),
-  getBusStock:         (t)              => apiFetch('/bus-stock-get', {}, t),
-  addPickingLines:     (t, pickingId, items) => apiFetch('/picking-add-line',    { method: 'POST', body: JSON.stringify({ pickingId, items }) }, t),
-  removePickingLine:   (t, pickingId, moveId) => apiFetch('/picking-remove-line', { method: 'POST', body: JSON.stringify({ pickingId, moveId }) }, t),
+  // Plaatsen (WH/OUT)
+  getOutboundPickings: (t)                       => apiFetch('/pickings-get?direction=out', {}, t),
+  getBusStock:         (t)                       => apiFetch('/bus-stock-get', {}, t),
+  addPickingLines:     (t, pickingId, items)     => apiFetch('/picking-add-line',    { method: 'POST', body: JSON.stringify({ pickingId, items }) }, t),
+  removePickingLine:   (t, pickingId, moveId)    => apiFetch('/picking-remove-line', { method: 'POST', body: JSON.stringify({ pickingId, moveId }) }, t),
+  // Bewerken: add met lot of remove_line specifieke move line
+  editPickingLine: (t, pickingId, action, extra) => apiFetch('/picking-edit-line',   { method: 'POST', body: JSON.stringify({ pickingId, action, ...extra }) }, t),
 
   // Busstock overzicht
   getBusStockAll: (t) => apiFetch('/bus-stock-all', {}, t),
 
-  // Gebruikers
+  // Retour
+  getReturns:   (t)        => apiFetch('/return-create', {}, t),
+  createReturn: (t, items) => apiFetch('/return-create', { method: 'POST', body: JSON.stringify({ items }) }, t),
+
   getUsers:   (t)    => apiFetch('/users-manage', {}, t),
   createUser: (t, d) => apiFetch('/users-manage', { method: 'POST',   body: JSON.stringify(d) }, t),
   updateUser: (t, d) => apiFetch('/users-manage', { method: 'PUT',    body: JSON.stringify(d) }, t),

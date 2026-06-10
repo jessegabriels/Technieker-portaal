@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import OrderPage from './pages/OrderPage';
@@ -9,6 +10,7 @@ import HistoryPage from './pages/HistoryPage';
 import PickupsPage from './pages/PickupsPage';
 import PlacePage      from './pages/PlacePage';
 import BusStockPage   from './pages/BusStockPage';
+import ReturnPage     from './pages/ReturnPage';
 import AdminUsers from './pages/AdminUsers';
 import AdminArticles from './pages/AdminArticles';
 
@@ -33,6 +35,10 @@ function AppRoutes() {
 
       <Route path="/pickups" element={
         <RequireAuth><Layout><PickupsPage /></Layout></RequireAuth>
+      } />
+
+      <Route path="/return" element={
+        <RequireAuth><Layout><ReturnPage /></Layout></RequireAuth>
       } />
 
       <Route path="/busstock" element={
@@ -66,10 +72,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

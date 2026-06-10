@@ -59,6 +59,8 @@ const handlers = {
   'picking-add-line':    require('../netlify/functions/picking-add-line'),
   'picking-remove-line': require('../netlify/functions/picking-remove-line'),
   'bus-stock-all':       require('../netlify/functions/bus-stock-all'),
+  'picking-edit-line':   require('../netlify/functions/picking-edit-line'),
+  'return-create':       require('../netlify/functions/return-create'),
 };
 
 // Mount elke handler op alle HTTP-methodes

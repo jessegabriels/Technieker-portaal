@@ -162,3 +162,9 @@
   border-radius: 99px; padding: 1px 10px;
   vertical-align: middle;
 }
+
+/* Licht thema - picking cards */
+[data-theme="light"] .picking-card-header:hover { background: var(--surface2); }
+[data-theme="light"] .picking-detail { background: var(--surface); }
+[data-theme="light"] .serial-badge { background: var(--surface2); color: var(--text2); border-color: var(--border2); }
+[data-theme="light"] .pickup-success { background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.3); }

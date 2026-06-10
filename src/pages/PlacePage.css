@@ -101,3 +101,29 @@
 }
 .items-section-extra { margin-top: 16px; }
 .items-section-extra .items-section-label { color: var(--accent); }
+
+/* Licht thema */
+[data-theme="light"] .serial-badge { background: var(--surface2); color: var(--text2); border-color: var(--border2); }
+[data-theme="light"] .place-item { border-bottom-color: var(--border); }
+[data-theme="light"] .extra-panel { box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+[data-theme="light"] .extra-stock-card { background: var(--surface); border-color: var(--border); }
+[data-theme="light"] .extra-stock-card.selected { background: rgba(217,119,6,0.04); }
+
+/* Hoeveelheid bewerken in edit-modus */
+.qty-edit-control {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.qty-btn-sm {
+  width: 26px; height: 26px; border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text2);
+  border-radius: 6px; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s; flex-shrink: 0;
+}
+.qty-btn-sm:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.qty-btn-sm:disabled { opacity: 0.35; cursor: not-allowed; }
+.qty-edit-display {
+  min-width: 40px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+}
+[data-theme="light"] .qty-btn-sm { background: var(--surface2); border-color: var(--border2); }

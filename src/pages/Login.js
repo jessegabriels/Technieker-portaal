@@ -33,11 +33,10 @@ export default function Login() {
       <div className="login-bg" />
       <div className="login-card fade-in">
         <div className="login-logo">
-          <div className="login-logo-mark">TP</div>
-          <div>
-            <div className="login-logo-title">Bestelportaal</div>
-            <div className="login-logo-sub">Technieker — Inloggen</div>
+          <div className="login-company-logo">
+            <img src="/logo-full.png" alt="Telcom" className="login-logo-img" />
           </div>
+          <div className="login-logo-sub">Bestelportaal — Inloggen</div>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

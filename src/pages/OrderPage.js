@@ -22,6 +22,10 @@ export default function OrderPage() {
   const [submitting, setSubmitting] = useState(false);
   const [successResult, setSuccessResult] = useState(null);
   const [error, setError]         = useState('');
+  // Deadline banner: toon 1x per sessie
+  const [showDeadline, setShowDeadline] = useState(
+    () => sessionStorage.getItem('deadline_dismissed') !== 'true'
+  );
 
   useEffect(() => {
     api.getArticles(token)
@@ -84,6 +88,23 @@ export default function OrderPage() {
     <>
       {successResult && (
         <SuccessModal result={successResult} onClose={() => setSuccessResult(null)} />
+      )}
+
+      {showDeadline && (
+        <div className="deadline-banner">
+          <div className="deadline-banner-inner">
+            <span className="deadline-icon">📅</span>
+            <div>
+              <strong>Bestellingen voor de week erna</strong>
+              <p>Dien je bestelling ten laatste <strong>woensdagavond</strong> in.
+              De magazijnier neemt alles donderdag klaar zodat je het <strong>vrijdagochtend</strong> kunt ophalen.</p>
+            </div>
+          </div>
+          <button className="deadline-close"
+            onClick={() => { setShowDeadline(false); sessionStorage.setItem('deadline_dismissed','true'); }}>
+            ×
+          </button>
+        </div>
       )}
 
       <div className="order-layout fade-in">

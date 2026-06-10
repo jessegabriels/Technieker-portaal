@@ -18,32 +18,83 @@ const STATE_CONFIG = {
   waiting:             { label: 'Wachtend',           color: 'var(--text3)',    bg: 'var(--surface2)',      icon: '⏸' },
 };
 
-// ── Artikel met serienummers + verwijderknop ─────────────────────────────────
-function ItemWithSerials({ item, onRemove, removing }) {
+// ── Artikel met serienummers — normaal of bewerkbaar ─────────────────────────
+function ItemWithSerials({ item, editMode, onRemoveLine, onRemoveMove, onUpdateQty, removingId, updatingId }) {
   return (
     <div className="place-item">
       <div className="place-item-row">
         <span className="place-item-name">{item.productName}</span>
-        <span className="place-item-qty">
-          <strong style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)' }}>
-            {item.qtyDemand}
-          </strong>
-          {item.unit && <span style={{ color: 'var(--text3)', marginLeft: 4 }}>{item.unit}</span>}
-        </span>
-        {onRemove && (
-          <button
-            className="remove-line-btn"
-            onClick={onRemove}
-            disabled={removing}
-            title="Regel verwijderen van deze bon"
-          >
-            {removing
+
+        {/* Niet-serialized in edit mode: toon +/- knoppen */}
+        {editMode && !item.isSerialTracked ? (
+          <div className="qty-edit-control">
+            <button className="qty-btn qty-btn-sm"
+              onClick={() => onUpdateQty(item, item.qtyDemand - 1)}
+              disabled={!!updatingId || item.qtyDemand <= 0}
+              title={item.qtyDemand <= 1 ? 'Verwijdert de regel' : 'Verminder met 1'}>
+              {item.qtyDemand <= 1 ? '🗑' : '−'}
+            </button>
+            <span className="qty-edit-display">
+              {updatingId === `qty-${item.id}`
+                ? <span className="spinner" style={{ width: 12, height: 12 }} />
+                : <strong style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)' }}>
+                    {item.qtyDemand}
+                  </strong>}
+              {item.unit && <span style={{ color: 'var(--text3)', fontSize: 12, marginLeft: 3 }}>{item.unit}</span>}
+            </span>
+            <button className="qty-btn qty-btn-sm"
+              onClick={() => onUpdateQty(item, item.qtyDemand + 1)}
+              disabled={!!updatingId}
+              title="Vermeerder met 1">
+              +
+            </button>
+          </div>
+        ) : (
+          <span className="place-item-qty">
+            <strong style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)' }}>
+              {item.qtyDemand}
+            </strong>
+            {item.unit && <span style={{ color: 'var(--text3)', marginLeft: 4 }}>{item.unit}</span>}
+          </span>
+        )}
+
+        {/* In bewerkingsmodus: hele move verwijderen (niet-serialized, via 🗑 knop apart) */}
+        {editMode && !item.isSerialTracked && item.qtyDemand > 1 && onRemoveMove && (
+          <button className="remove-line-btn"
+            onClick={() => onRemoveMove(item)}
+            disabled={removingId === `move-${item.id}`}
+            title="Verwijder volledig van bon">
+            {removingId === `move-${item.id}`
               ? <span className="spinner" style={{ width: 12, height: 12 }} />
               : '🗑'}
           </button>
         )}
       </div>
-      {item.serials && item.serials.length > 0 && (
+
+      {/* Serienummers: in bewerkingsmodus met ✕ per serienummer */}
+      {item.moveLines && item.moveLines.length > 0 && (
+        <div className="place-serial-list">
+          {item.moveLines.filter(ml => ml.lotName).map((ml, i) => (
+            <div key={i} className="place-serial-item">
+              <span className="serial-arrow">↳</span>
+              <span className="serial-badge">{ml.lotName}</span>
+              {editMode && onRemoveLine && (
+                <button className="remove-line-btn"
+                  style={{ marginLeft: 4 }}
+                  onClick={() => onRemoveLine(ml, item)}
+                  disabled={removingId === `line-${ml.id}`}
+                  title="Verwijder dit serienummer">
+                  {removingId === `line-${ml.id}`
+                    ? <span className="spinner" style={{ width: 10, height: 10 }} />
+                    : '✕'}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Fallback: toon serials array als moveLines leeg is */}
+      {(!item.moveLines || item.moveLines.length === 0) && item.serials && item.serials.length > 0 && (
         <div className="place-serial-list">
           {item.serials.map((s, i) => (
             <div key={i} className="place-serial-item">
@@ -200,22 +251,49 @@ function ExtraPanel({ picking, token, onClose, onAdded }) {
   );
 }
 
-// ── Verwijderbare itemlijst ──────────────────────────────────────────────────────
-function RemovableItemList({ picking, token, onRefresh }) {
-  const [removing, setRemoving] = React.useState(null);
-  const [error, setError]       = React.useState('');
+// ── Itemlijst met bewerkingsmodus ─────────────────────────────────────────────
+function EditableItemList({ picking, token, onRefresh, editMode }) {
+  const [removingId, setRemovingId] = React.useState(null);
+  const [updatingId, setUpdatingId] = React.useState(null);
+  const [error, setError]           = React.useState('');
 
-  const handleRemove = async (item) => {
-    if (!window.confirm(`Regel "${item.productName}" verwijderen van deze bon?`)) return;
-    setRemoving(item.id); setError('');
+  const handleRemoveLine = async (moveLine, item) => {
+    if (!window.confirm(`Serienummer "${moveLine.lotName}" verwijderen?`)) return;
+    const key = `line-${moveLine.id}`;
+    setRemovingId(key); setError('');
+    try {
+      await api.editPickingLine(token, picking.id, 'remove_line', {
+        moveLineId: moveLine.id, moveId: item.id,
+      });
+      onRefresh();
+    } catch (e) { setError(e.message); }
+    finally { setRemovingId(null); }
+  };
+
+  const handleRemoveMove = async (item) => {
+    if (!window.confirm(`"${item.productName}" volledig verwijderen van deze bon?`)) return;
+    const key = `move-${item.id}`;
+    setRemovingId(key); setError('');
     try {
       await api.removePickingLine(token, picking.id, item.id);
       onRefresh();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setRemoving(null);
-    }
+    } catch (e) { setError(e.message); }
+    finally { setRemovingId(null); }
+  };
+
+  const handleUpdateQty = async (item, newQty) => {
+    const qty = Math.max(0, newQty);
+    if (qty === 0 && !window.confirm(`"${item.productName}" verwijderen van deze bon?`)) return;
+    const key = `qty-${item.id}`;
+    setUpdatingId(key); setError('');
+    try {
+      await api.editPickingLine(token, picking.id, 'update_qty', {
+        moveId: item.id,
+        newQty: qty,
+      });
+      onRefresh();
+    } catch (e) { setError(e.message); }
+    finally { setUpdatingId(null); }
   };
 
   const originalItems = picking.items.filter(i => !i.isExtra);
@@ -228,28 +306,31 @@ function RemovableItemList({ picking, token, onRefresh }) {
           <span>⚠</span> {error}
         </div>
       )}
-
-      {/* Sectie 1: Originele artikelen van de planner */}
       {originalItems.length > 0 && (
         <div className="items-section">
           <div className="items-section-label">📋 Gepland materiaal</div>
           {originalItems.map((item, i) => (
-            <ItemWithSerials key={i} item={item} />
+            <ItemWithSerials key={i} item={item}
+              editMode={editMode}
+              onRemoveLine={handleRemoveLine}
+              onRemoveMove={handleRemoveMove}
+              onUpdateQty={handleUpdateQty}
+              removingId={removingId}
+              updatingId={updatingId} />
           ))}
         </div>
       )}
-
-      {/* Sectie 2: Extra toegevoegd door de technieker */}
       {extraItems.length > 0 && (
         <div className="items-section items-section-extra">
           <div className="items-section-label">➕ Toegevoegd door technieker</div>
           {extraItems.map((item, i) => (
-            <ItemWithSerials
-              key={i}
-              item={item}
-              onRemove={() => handleRemove(item)}
-              removing={removing === item.id}
-            />
+            <ItemWithSerials key={i} item={item}
+              editMode={editMode}
+              onRemoveLine={handleRemoveLine}
+              onRemoveMove={handleRemoveMove}
+              onUpdateQty={handleUpdateQty}
+              removingId={removingId}
+              updatingId={updatingId} />
           ))}
         </div>
       )}
@@ -343,6 +424,7 @@ export default function PlacePage() {
   const [warning, setWarning]               = useState('');
   const [error, setError]                   = useState('');
   const [expandedIds, setExpandedIds]       = useState(new Set());
+  const [editMode, setEditMode]             = useState(new Set());
   const [confirmPicking, setConfirmPicking] = useState(null);
   const [extraPicking, setExtraPicking]     = useState(null);
   const [validating, setValidating]         = useState(false);
@@ -370,6 +452,15 @@ export default function PlacePage() {
     pollRef.current = setInterval(() => load(true), POLL_INTERVAL);
     return () => clearInterval(pollRef.current);
   }, [load]);
+
+  const toggleEdit = useCallback((id) => {
+    const key = String(id);
+    setEditMode(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }, []);
 
   const toggleExpand = useCallback((id) => {
     const key = String(id);
@@ -467,7 +558,14 @@ export default function PlacePage() {
                 </div>
 
                 <div className="picking-card-info">
-                  <div className="picking-name">{picking.name}</div>
+                  <div className="picking-name">
+                    {picking.name}
+                    {picking.partner && (
+                      <span className="picking-partner">
+                        📍 {picking.partner}
+                      </span>
+                    )}
+                  </div>
                   <div className="picking-meta">
                     {picking.origin && <span>📋 {picking.origin}</span>}
                     {picking.scheduledDate && (
@@ -481,9 +579,16 @@ export default function PlacePage() {
                   {canConfirm && (
                     <>
                       <button
+                        className={`btn btn-sm ${editMode.has(String(picking.id)) ? 'btn-primary' : 'btn-ghost'}`}
+                        onClick={e => { e.stopPropagation(); toggleEdit(picking.id); if (!expandedIds.has(String(picking.id))) toggleExpand(picking.id); }}
+                        title="Artikelen toevoegen of verwijderen"
+                      >
+                        ✏ Bewerken
+                      </button>
+                      <button
                         className="btn btn-ghost btn-sm"
                         onClick={e => { e.stopPropagation(); setExtraPicking(picking); }}
-                        title="Extra materiaal uit busstock toevoegen"
+                        title="Extra materiaal toevoegen"
                       >
                         + Extra
                       </button>
@@ -502,7 +607,7 @@ export default function PlacePage() {
               {isExpanded && (
                 <div className="picking-detail fade-in">
                   <div className="picking-items-list">
-                    <RemovableItemList picking={picking} token={token} onRefresh={() => load(true)} />
+                    <EditableItemList picking={picking} token={token} onRefresh={() => load(true)} editMode={editMode.has(String(picking.id))} />
                   </div>
 
                   <div className="picking-locations">

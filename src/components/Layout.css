@@ -86,3 +86,141 @@
   width: 38px; height: 38px; border-radius: 8px;
   object-fit: contain; flex-shrink: 0;
 }
+
+/* ── Thema toggle knop ─────────────────────────────────────────────────────── */
+.theme-toggle-btn {
+  color: var(--text3);
+}
+.theme-toggle-btn:hover {
+  color: var(--text) !important;
+  background: var(--surface2) !important;
+}
+
+.theme-toggle-label {
+  display: flex; align-items: center; justify-content: space-between;
+  flex: 1; gap: 8px;
+}
+.theme-current { font-size: 13px; }
+
+/* Toggle switch track */
+.theme-switch-track {
+  width: 36px; height: 20px; border-radius: 99px;
+  background: var(--border2); position: relative;
+  flex-shrink: 0; transition: background 0.2s;
+}
+.theme-toggle-btn:hover .theme-switch-track { background: var(--accent); }
+
+/* Toggle switch thumb */
+.theme-switch-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--text2); transition: transform 0.2s, background 0.2s;
+}
+.theme-switch-thumb.right {
+  transform: translateX(16px);
+  background: var(--accent);
+}
+
+/* Light theme — sidebar aanpassingen */
+[data-theme="light"] .sidebar {
+  background: var(--surface);
+  border-right-color: var(--border);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .topbar {
+  background: var(--surface);
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .nav-item.active {
+  background: rgba(217,119,6,0.1);
+}
+[data-theme="light"] .sidebar-user {
+  border-bottom-color: var(--border);
+}
+[data-theme="light"] .sidebar-footer {
+  border-top-color: var(--border);
+}
+
+/* ── Bedrijfslogo in sidebar ───────────────────────────────────────────────── */
+.sidebar-brand-logo {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
+}
+.sidebar-icon-img {
+  width: 30px; height: 30px;
+  object-fit: contain; display: block;
+}
+
+/* ── Bedrijfslogo in topbar (rechtsboven) ──────────────────────────────────── */
+.topbar-company-logo {
+  display: flex; align-items: center;
+  border-radius: 8px;
+  padding: 4px 6px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.topbar-logo-img {
+  height: 24px; width: auto; display: block;
+}
+
+/* In licht thema: subtiele schaduw zodat de donkere container niet te hard is */
+
+
+/* Responsive: verberg volledige naam op kleine schermen */
+@media (max-width: 500px) {
+  .topbar-company-logo { display: none; }
+}
+
+/* ── Taalwisselaar ─────────────────────────────────────────────────────────── */
+.language-selector {
+  display: flex; gap: 4px; padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.lang-btn {
+  flex: 1; padding: 5px 0;
+  background: var(--surface2); color: var(--text3);
+  border: 1px solid var(--border2); border-radius: 6px;
+  font-family: var(--font-display); font-weight: 700; font-size: 11px;
+  letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s;
+}
+.lang-btn:hover { color: var(--text); border-color: var(--accent); }
+.lang-btn.active {
+  background: var(--accent); color: #000;
+  border-color: var(--accent);
+}
+[data-theme="light"] .lang-btn { background: var(--surface2); }
+[data-theme="light"] .lang-btn.active { background: var(--accent); color: #000; }
+
+/* ── Mobiele navigatie: overlay + sluitknop ────────────────────────────────── */
+
+/* Sluitknop: standaard verborgen, enkel op mobiel zichtbaar */
+.sidebar-close-btn {
+  display: none;
+  background: none; border: none;
+  color: var(--text3); font-size: 28px; line-height: 1;
+  cursor: pointer; padding: 4px 8px; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  margin-left: auto; flex-shrink: 0;
+}
+.sidebar-close-btn:hover { color: var(--text); background: var(--surface2); }
+
+/* Overlay achter de sidebar op mobiel */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 99;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar-close-btn { display: flex; align-items: center; }
+  .sidebar-overlay   { display: block; }
+  /* Zorg dat sidebar boven de overlay staat */
+  .sidebar { z-index: 100; }
+}

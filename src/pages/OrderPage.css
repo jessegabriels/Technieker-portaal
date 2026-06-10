@@ -126,3 +126,31 @@
   padding: 1px 7px;
 }
 .cart-item-cat { color: var(--text3); font-size: 11px; }
+
+/* Deadline banner */
+.deadline-banner {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25);
+  border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 20px;
+  animation: fadeIn 0.4s ease;
+}
+.deadline-banner-inner { display: flex; gap: 12px; align-items: flex-start; }
+.deadline-icon { font-size: 22px; flex-shrink: 0; }
+.deadline-banner strong { color: var(--info); font-family: var(--font-display); font-size: 14px; }
+.deadline-banner p { font-size: 13px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+.deadline-banner p strong { color: var(--text); }
+.deadline-close {
+  background: none; border: none; color: var(--text3); font-size: 20px;
+  cursor: pointer; flex-shrink: 0; line-height: 1; padding: 0;
+}
+.deadline-close:hover { color: var(--text); }
+
+/* Licht thema - bestelscherm */
+[data-theme="light"] .article-card { background: var(--surface); border-color: var(--border); }
+[data-theme="light"] .article-card:hover { border-color: var(--border2); }
+[data-theme="light"] .article-card.selected { background: rgba(217,119,6,0.04); }
+[data-theme="light"] .qty-btn { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
+[data-theme="light"] .qty-input { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+[data-theme="light"] .cart-panel { background: var(--surface); border-color: var(--border); }
+[data-theme="light"] .cart-item:hover { background: var(--surface2); }
+[data-theme="light"] .deadline-banner { background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.2); }

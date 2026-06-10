@@ -85,3 +85,18 @@
   border: 1px solid var(--border2); border-radius: 4px;
   padding: 1px 8px; letter-spacing: 0.03em;
 }
+
+/* Verantwoordelijkheidsmelding */
+.responsibility-notice {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 20px;
+  font-size: 14px; color: var(--text);
+}
+.responsibility-notice strong { color: var(--error); font-family: var(--font-display); }
+
+/* Licht thema */
+[data-theme="light"] .bus-card-header:hover { background: var(--surface2); }
+[data-theme="light"] .serial-badge-table { background: var(--surface2); color: var(--text2); border-color: var(--border2); }
+[data-theme="light"] .serial-row td { background: var(--surface2) !important; }
+[data-theme="light"] .bus-summary-chip { background: var(--surface2); }
