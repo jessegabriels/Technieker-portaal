@@ -13,26 +13,48 @@ const DEPT_LABELS = {
 
 export default function OrderPage() {
   const { token } = useAuth();
-  const [articles, setArticles]   = useState([]);
-  const [cart, setCart]           = useState({});
-  const [note, setNote]           = useState('');
-  const [search, setSearch]       = useState('');
-  const [filterCat, setFilterCat] = useState('all');
-  const [loading, setLoading]     = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [articles, setArticles]       = useState([]);
+  const [stockByOdooId, setStockByOdooId] = useState(null); // null = nog niet geladen
+  const [cart, setCart]               = useState({});
+  const [note, setNote]               = useState('');
+  const [search, setSearch]           = useState('');
+  const [filterCat, setFilterCat]     = useState('all');
+  const [loading, setLoading]         = useState(true);
+  const [submitting, setSubmitting]   = useState(false);
   const [successResult, setSuccessResult] = useState(null);
-  const [error, setError]         = useState('');
+  const [error, setError]             = useState('');
   // Deadline banner: toon 1x per sessie
   const [showDeadline, setShowDeadline] = useState(
     () => sessionStorage.getItem('deadline_dismissed') !== 'true'
   );
 
   useEffect(() => {
-    api.getArticles(token)
+    // Artikelen en stockinfo parallel ophalen
+    const articlesP = api.getArticles(token);
+    const stockP    = api.getArticleStock(token);
+
+    articlesP
       .then(d => setArticles(d.articles || []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token]);
+
+    // Stockinfo mag falen zonder de pagina te breken
+    stockP
+      .then(d => setStockByOdooId(d.stock || {}))
+      .catch(() => setStockByOdooId({})); // bij fout: geen indicators tonen
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Bepaal stockstatus voor een artikel
+  // 'unknown'      → geen odooId, kunnen niet controleren
+  // 'loading'      → stock nog niet geladen
+  // 'in-stock'     → beschikbaar
+  // 'out-of-stock' → 0 of negatief beschikbaar
+  const getStockStatus = (article) => {
+    if (!article.odooId) return 'unknown';
+    if (stockByOdooId === null) return 'loading';
+    const qty = stockByOdooId[article.odooId] ?? 0;
+    return qty > 0 ? 'in-stock' : 'out-of-stock';
+  };
 
   const categories = useMemo(() =>
     [...new Set(articles.map(a => a.category).filter(Boolean))].sort(),
@@ -132,13 +154,20 @@ export default function OrderPage() {
           ) : (
             <div className="article-list">
               {filtered.map(article => {
-                const qty     = cart[article.id] || 0;
-                const deptKey = article.departments?.[0] === 'all'
+                const qty        = cart[article.id] || 0;
+                const deptKey    = article.departments?.[0] === 'all'
                   ? 'all' : (article.departments?.[0] || 'all');
+                const stockStatus = getStockStatus(article);
+                const outOfStock  = stockStatus === 'out-of-stock';
 
                 return (
                   <div key={article.id}
-                    className={`article-card ${qty > 0 ? 'selected' : ''}`}>
+                    className={[
+                      'article-card',
+                      qty > 0 ? 'selected' : '',
+                      outOfStock ? 'out-of-stock' : '',
+                    ].filter(Boolean).join(' ')}
+                  >
                     <div className="article-info">
                       <div className="article-top-row">
                         <span className="article-ref">{article.internalRef}</span>
@@ -154,6 +183,11 @@ export default function OrderPage() {
                           {DEPT_LABELS[deptKey] || deptKey}
                         </span>
                         <span className="article-unit">/{article.unit}</span>
+                        {outOfStock && (
+                          <span className="stock-badge-oos" title="Momenteel niet op voorraad in het magazijn. Je kunt dit artikel toch bestellen.">
+                            Niet op voorraad
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -195,26 +229,32 @@ export default function OrderPage() {
           ) : (
             <>
               <div className="cart-items">
-                {cartItems.map(({ article, qty }) => (
-                  <div key={article.id} className="cart-item">
-                    <div className="cart-item-info">
-                      <div className="cart-item-name">{article.name}</div>
-                      <div className="cart-item-ref">
-                        {article.internalRef}
-                        {article.category && (
-                          <span className="cart-item-cat"> · {article.category}</span>
+                {cartItems.map(({ article, qty }) => {
+                  const oos = getStockStatus(article) === 'out-of-stock';
+                  return (
+                    <div key={article.id} className="cart-item">
+                      <div className="cart-item-info">
+                        <div className="cart-item-name">{article.name}</div>
+                        <div className="cart-item-ref">
+                          {article.internalRef}
+                          {article.category && (
+                            <span className="cart-item-cat"> · {article.category}</span>
+                          )}
+                        </div>
+                        {oos && (
+                          <div className="cart-item-oos">⚠ Niet op voorraad</div>
                         )}
                       </div>
+                      <div className="cart-item-qty">
+                        <span className="qty-badge">{qty}</span>
+                        <span className="cart-item-unit">{article.unit}</span>
+                        <button className="remove-btn"
+                          onClick={() => setQty(article.id, 0)}
+                          title="Verwijderen">×</button>
+                      </div>
                     </div>
-                    <div className="cart-item-qty">
-                      <span className="qty-badge">{qty}</span>
-                      <span className="cart-item-unit">{article.unit}</span>
-                      <button className="remove-btn"
-                        onClick={() => setQty(article.id, 0)}
-                        title="Verwijderen">×</button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="cart-footer">

@@ -63,6 +63,7 @@ const handlers = {
   'return-create':       require('../netlify/functions/return-create'),
   'dropships-get':       require('../netlify/functions/dropships-get'),
   'warehouse-stock':     require('../netlify/functions/warehouse-stock'),
+  'article-stock':       require('../netlify/functions/article-stock'),
 };
 
 // Mount elke handler op alle HTTP-methodes

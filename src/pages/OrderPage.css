@@ -145,6 +145,53 @@
 }
 .deadline-close:hover { color: var(--text); }
 
+/* ── Niet-op-voorraad indicators ──────────────────────────────────────────── */
+
+/* Artikel kaart iets gedimd als niet op voorraad */
+.article-card.out-of-stock {
+  opacity: 0.72;
+  border-style: dashed;
+}
+.article-card.out-of-stock:hover {
+  opacity: 0.88;
+}
+/* Geselecteerde out-of-stock kaart gewoon volledig zichtbaar */
+.article-card.out-of-stock.selected {
+  opacity: 1;
+  border-style: solid;
+}
+
+/* Badge op de artikelkaart */
+.stock-badge-oos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text3);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 1px 7px;
+  white-space: nowrap;
+  cursor: default;
+}
+.stock-badge-oos::before {
+  content: '○';
+  font-size: 8px;
+  color: var(--text3);
+}
+
+/* Indicator in de winkelwagen */
+.cart-item-oos {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f59e0b;
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
 /* Licht thema - bestelscherm */
 [data-theme="light"] .article-card { background: var(--surface); border-color: var(--border); }
 [data-theme="light"] .article-card:hover { border-color: var(--border2); }

@@ -46,6 +46,9 @@ export const api = {
   createReturn: (t, items, note) => apiFetch('/return-create', { method: 'POST', body: JSON.stringify({ items, note }) }, t),
   deleteReturn: (t, id)          => apiFetch('/return-create', { method: 'DELETE', body: JSON.stringify({ id }) }, t),
 
+  // Stockinfo per artikel (alle rollen)
+  getArticleStock: (t) => apiFetch('/article-stock', {}, t),
+
   // Magazijn stock (admin)
   getWarehouseStock: (t) => apiFetch('/warehouse-stock', {}, t),
 
