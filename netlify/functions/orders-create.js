@@ -3,6 +3,7 @@ const { requireAuth, cors } = require('./lib/auth');
 const { odooCall } = require('./lib/odoo');
 const { create: createOrder } = require('./lib/orders');
 const { findById: findArticle } = require('./lib/articles');
+const { findById: findUser } = require('./lib/users');
 const crypto = require('crypto');
 
 const PICKING_TYPE_ID = parseInt(process.env.ODOO_PICKING_TYPE_ID || '2');
@@ -14,7 +15,8 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return cors({ error: 'Method not allowed' }, 405);
 
   try {
-    const user = requireAuth(event);
+    const authUser = requireAuth(event);
+    const user     = await findUser(authUser.id) || authUser;
     const { items, note } = JSON.parse(event.body || '{}');
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -56,14 +58,17 @@ exports.handler = async (event) => {
 
     try {
       // Create stock.picking
-      odooPickingId = await odooCall('stock.picking', 'create', [{
-        picking_type_id: PICKING_TYPE_ID,
-        location_id: SOURCE_LOCATION_ID,
+      const pickingVals = {
+        picking_type_id:  PICKING_TYPE_ID,
+        location_id:      SOURCE_LOCATION_ID,
         location_dest_id: DEST_LOCATION_ID,
-        origin: orderId,
-        note: `Bestelling door ${user.name} (${user.department})\n${note || ''}`.trim(),
-        scheduled_date: scheduledDate,
-      }]);
+        origin:           orderId,
+        note:             `Bestelling door ${user.name} (${user.department})\n${note || ''}`.trim(),
+        scheduled_date:   scheduledDate,
+      };
+      if (user.odooTechnicianId) pickingVals.x_studio_technieker = user.odooTechnicianId;
+
+      odooPickingId = await odooCall('stock.picking', 'create', [pickingVals]);
 
       // Create stock.move lines for each item
       for (const { article, quantity } of resolvedItems) {

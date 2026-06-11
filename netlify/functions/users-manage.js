@@ -25,21 +25,23 @@ exports.handler = async (event) => {
       if (all.find(u => u.username === username.toLowerCase()))
         return cors({ error: 'Gebruikersnaam bestaat al.' }, 409);
 
-      const { odooLocationId: newLocId } = JSON.parse(event.body || '{}');
+      const { odooLocationId: newLocId, odooTechnicianId: newTechId } = JSON.parse(event.body || '{}');
       const newUser = await create({
-        id:             `user-${crypto.randomBytes(4).toString('hex')}`,
-        username:       username.toLowerCase().trim(),
-        passwordHash:   hashPassword(password),
+        id:               `user-${crypto.randomBytes(4).toString('hex')}`,
+        username:         username.toLowerCase().trim(),
+        passwordHash:     hashPassword(password),
         name, role, department,
-        active:         true,
-        odooLocationId: newLocId ? parseInt(newLocId) : null,
+        active:           true,
+        odooLocationId:   newLocId  ? parseInt(newLocId)  : null,
+        odooTechnicianId: newTechId ? parseInt(newTechId) : null,
       });
       return cors({ user: sanitize(newUser) });
     }
 
     if (event.httpMethod === 'PUT') {
-      const { id, password, odooLocationId, ...updates } = JSON.parse(event.body || '{}');
-      if (odooLocationId !== undefined) updates.odooLocationId = odooLocationId ? parseInt(odooLocationId) : null;
+      const { id, password, odooLocationId, odooTechnicianId, ...updates } = JSON.parse(event.body || '{}');
+      if (odooLocationId   !== undefined) updates.odooLocationId   = odooLocationId   ? parseInt(odooLocationId)   : null;
+      if (odooTechnicianId !== undefined) updates.odooTechnicianId = odooTechnicianId ? parseInt(odooTechnicianId) : null;
       if (!id) return cors({ error: 'ID verplicht.' }, 400);
       if (password) updates.passwordHash = hashPassword(password);
       const updated = await update(id, updates);

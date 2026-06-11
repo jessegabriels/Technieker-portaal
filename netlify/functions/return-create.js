@@ -126,13 +126,16 @@ exports.handler = async (event) => {
       const odooNote = `Retour aangevraagd door ${user.name} via portaal${note ? `\n\nOpmerking: ${note}` : ''}`;
 
       // Retourpicking aanmaken in Odoo
-      const pickingId = await odooCall('stock.picking', 'create', [{
+      const pickingVals = {
         picking_type_id:  RETURN_PICKING_TYPE_ID,
         location_id:      locationId,
         location_dest_id: RETURN_DEST_LOCATION_ID,
         origin,
         note: odooNote,
-      }]);
+      };
+      if (user.odooTechnicianId) pickingVals.x_studio_technieker = user.odooTechnicianId;
+
+      const pickingId = await odooCall('stock.picking', 'create', [pickingVals]);
 
       // Moves aanmaken per artikel
       for (const item of items) {

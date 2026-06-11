@@ -13,7 +13,7 @@ const DEPT_LABELS = {
 const emptyForm = {
   username: '', password: '', name: '',
   role: 'technician', department: 'laadpalen', active: true,
-  odooLocationId: '',
+  odooLocationId: '', odooTechnicianId: '',
 };
 
 export default function AdminUsers() {
@@ -45,6 +45,7 @@ export default function AdminUsers() {
       username: u.username, password: '', name: u.name,
       role: u.role, department: u.department, active: u.active,
       odooLocationId: u.odooLocationId || '',
+      odooTechnicianId: u.odooTechnicianId || '',
     });
     setEditId(u.id); setError(''); setShowForm(true);
   };
@@ -53,7 +54,12 @@ export default function AdminUsers() {
     setSaving(true); setError('');
     try {
       if (editId) {
-        const payload = { id: editId, name: form.name, role: form.role, department: form.department, active: form.active };
+        const payload = {
+          id: editId, name: form.name, role: form.role,
+          department: form.department, active: form.active,
+          odooLocationId:   form.odooLocationId   || null,
+          odooTechnicianId: form.odooTechnicianId || null,
+        };
         if (form.password) payload.password = form.password;
         await api.updateUser(token, payload);
         showBanner('success', 'Gebruiker bijgewerkt.');
@@ -190,6 +196,15 @@ export default function AdminUsers() {
                 onChange={e => setForm(f => ({ ...f, odooLocationId: e.target.value }))} />
               <span style={{ fontSize:11, color:'var(--text3)', marginTop:2 }}>
                 Vereist voor de "Ophalen" functie. Vind het ID in Odoo → Voorraadbeheer → Configuratie → Locaties (debug-modus).
+              </span>
+            </div>
+            <div className="form-field">
+              <label className="form-label">Technieker ID (Odoo)</label>
+              <input className="form-input" type="number" value={form.odooTechnicianId}
+                placeholder="bijv. 5 (zie Odoo → Techniekers model)"
+                onChange={e => setForm(f => ({ ...f, odooTechnicianId: e.target.value }))} />
+              <span style={{ fontSize:11, color:'var(--text3)', marginTop:2 }}>
+                ID uit het "Techniekers" model in Odoo. Wordt ingevuld als x_studio_technieker op elke pickingorder.
               </span>
             </div>
             <div style={{ display:'flex', gap:10, marginTop:8 }}>

@@ -17,8 +17,9 @@ function fromDb(row) {
     role:           row.role,
     department:     row.department,
     active:         row.active,
-    odooLocationId: row.odoo_location_id || null,
-    createdAt:      row.created_at,
+    odooLocationId:    row.odoo_location_id    || null,
+    odooTechnicianId:  row.odoo_technieker_id  || null,
+    createdAt:         row.created_at,
   };
 }
 
@@ -32,7 +33,8 @@ function toDb(obj) {
   if (obj.role           !== undefined) row.role             = obj.role;
   if (obj.department     !== undefined) row.department       = obj.department;
   if (obj.active         !== undefined) row.active           = obj.active;
-  if (obj.odooLocationId !== undefined) row.odoo_location_id = obj.odooLocationId ? parseInt(obj.odooLocationId) : null;
+  if (obj.odooLocationId   !== undefined) row.odoo_location_id   = obj.odooLocationId   ? parseInt(obj.odooLocationId)   : null;
+  if (obj.odooTechnicianId !== undefined) row.odoo_technieker_id = obj.odooTechnicianId ? parseInt(obj.odooTechnicianId) : null;
   return row;
 }
 
