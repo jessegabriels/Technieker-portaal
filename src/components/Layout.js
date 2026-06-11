@@ -14,7 +14,8 @@ const NAV = [
   { path: '/return',        label: 'Retour',            icon: '↩️', roles: ['technician', 'admin'] },
   { path: '/admin/orders',  label: 'Alle bestellingen', icon: '🗂️', roles: ['admin'] },
   { path: '/admin/users',   label: 'Gebruikers',        icon: '👥', roles: ['admin'] },
-  { path: '/admin/articles',label: 'Artikelen',         icon: '🔧', roles: ['admin'] },
+  { path: '/admin/articles',      label: 'Artikelen',       icon: '🔧', roles: ['admin'] },
+  { path: '/admin/warehouse-stock', label: 'Magazijn stock',  icon: '🏭', roles: ['admin'] },
 ];
 
 const DEPT_LABELS = {

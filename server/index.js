@@ -61,6 +61,8 @@ const handlers = {
   'bus-stock-all':       require('../netlify/functions/bus-stock-all'),
   'picking-edit-line':   require('../netlify/functions/picking-edit-line'),
   'return-create':       require('../netlify/functions/return-create'),
+  'dropships-get':       require('../netlify/functions/dropships-get'),
+  'warehouse-stock':     require('../netlify/functions/warehouse-stock'),
 };
 
 // Mount elke handler op alle HTTP-methodes

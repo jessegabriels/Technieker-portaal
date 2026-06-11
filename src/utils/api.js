@@ -27,6 +27,7 @@ export const api = {
 
   // Ophalen (MAOP)
   getPickings:     (t)    => apiFetch('/pickings-get?direction=in', {}, t),
+  getDropships:    (t)    => apiFetch('/dropships-get', {}, t),
   validatePicking: (t, id) => apiFetch('/pickings-validate', { method: 'POST', body: JSON.stringify({ pickingId: id }) }, t),
 
   // Plaatsen (WH/OUT)
@@ -44,6 +45,9 @@ export const api = {
   getReturns:   (t)              => apiFetch('/return-create', {}, t),
   createReturn: (t, items, note) => apiFetch('/return-create', { method: 'POST', body: JSON.stringify({ items, note }) }, t),
   deleteReturn: (t, id)          => apiFetch('/return-create', { method: 'DELETE', body: JSON.stringify({ id }) }, t),
+
+  // Magazijn stock (admin)
+  getWarehouseStock: (t) => apiFetch('/warehouse-stock', {}, t),
 
   getUsers:   (t)    => apiFetch('/users-manage', {}, t),
   createUser: (t, d) => apiFetch('/users-manage', { method: 'POST',   body: JSON.stringify(d) }, t),

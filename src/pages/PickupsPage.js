@@ -197,6 +197,19 @@ function PickingsList({ pickings, expandedIds, onToggle, onConfirm }) {
 
             {isExpanded && (
               <div className="picking-detail fade-in">
+                {/* Opmerking magazijnier (dropship) */}
+                {picking.note && (
+                  <div style={{
+                    padding: '8px 14px', marginBottom: 8,
+                    background: 'rgba(59,130,246,0.06)',
+                    border: '1px solid rgba(59,130,246,0.2)',
+                    borderRadius: 'var(--radius)', fontSize: 13, color: 'var(--text2)',
+                  }}>
+                    <span style={{ fontWeight: 700, color: 'var(--info)', marginRight: 6 }}>📝</span>
+                    {picking.note}
+                  </div>
+                )}
+
                 {/* Artikelen met serienummers */}
                 <div className="picking-items-list">
                   {picking.items.map((item, i) => (
@@ -235,9 +248,11 @@ function PickingsList({ pickings, expandedIds, onToggle, onConfirm }) {
 export default function PickupsPage() {
   const { token } = useAuth();
   const [pickings, setPickings]             = useState([]);
+  const [dropships, setDropships]           = useState([]);
   const [loading, setLoading]               = useState(true);
   const [refreshing, setRefreshing]         = useState(false);
   const [warning, setWarning]               = useState('');
+  const [dropshipWarning, setDropshipWarning] = useState('');
   const [error, setError]                   = useState('');
   const [confirmPicking, setConfirmPicking] = useState(null);
   const [validating, setValidating]         = useState(false);
@@ -251,10 +266,26 @@ export default function PickupsPage() {
     if (!silent) setLoading(true);
     else setRefreshing(true);
     try {
-      const data = await api.getPickings(token);
-      setPickings(data.pickings || []);
-      setWarning(data.warning || '');
-      setError('');
+      const [pickResult, dropResult] = await Promise.allSettled([
+        api.getPickings(token),
+        api.getDropships(token),
+      ]);
+
+      if (pickResult.status === 'fulfilled') {
+        setPickings(pickResult.value.pickings || []);
+        setWarning(pickResult.value.warning || '');
+        setError('');
+      } else {
+        setError(pickResult.reason.message);
+      }
+
+      if (dropResult.status === 'fulfilled') {
+        setDropships(dropResult.value.pickings || []);
+        setDropshipWarning(dropResult.value.warning || '');
+      } else {
+        setDropshipWarning('Kon dropships niet laden: ' + dropResult.reason.message);
+      }
+
       setLastUpdated(new Date());
     } catch (e) {
       setError(e.message);
@@ -286,7 +317,8 @@ export default function PickupsPage() {
       await api.validatePicking(token, confirmPicking.id);
       setSuccessPicking(confirmPicking);
       setConfirmPicking(null);
-      setPickings(prev => prev.filter(p => String(p.id) !== String(confirmPicking.id)));
+        setPickings(prev => prev.filter(p => String(p.id) !== String(confirmPicking.id)));
+      setDropships(prev => prev.filter(p => String(p.id) !== String(confirmPicking.id)));
       setTimeout(() => load(true), 1500);
     } catch (e) {
       setError(e.message);
@@ -329,7 +361,7 @@ export default function PickupsPage() {
       <div className="pickups-header">
         <div>
           <p style={{ color: 'var(--text2)', fontSize: 14, marginTop: 4 }}>
-            Bestellingen en projectmateriaal dat klaarstaat voor ophalen.
+            Bestellingen, projectmateriaal en dropships klaar voor ophalen.
           </p>
           {lastUpdated && (
             <p style={{ color: 'var(--text3)', fontSize: 12, marginTop: 2 }}>
@@ -365,6 +397,15 @@ export default function PickupsPage() {
             <span className="tab-badge">{projectPickings.length}</span>
           )}
         </button>
+        <button
+          className={`pickup-tab ${activeTab === 'dropship' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dropship')}
+        >
+          🚚 Dropship
+          {dropships.length > 0 && (
+            <span className="tab-badge">{dropships.length}</span>
+          )}
+        </button>
       </div>
 
       {/* Tab inhoud */}
@@ -384,6 +425,21 @@ export default function PickupsPage() {
             onToggle={toggleExpand}
             onConfirm={setConfirmPicking}
           />
+        )}
+        {activeTab === 'dropship' && (
+          <>
+            {dropshipWarning && (
+              <div className="alert alert-warning" style={{ marginBottom: 14, fontSize: 13 }}>
+                <span>⚠</span> {dropshipWarning}
+              </div>
+            )}
+            <PickingsList
+              pickings={dropships}
+              expandedIds={expandedIds}
+              onToggle={toggleExpand}
+              onConfirm={setConfirmPicking}
+            />
+          </>
         )}
       </div>
 

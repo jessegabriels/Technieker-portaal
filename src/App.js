@@ -13,6 +13,7 @@ import BusStockPage   from './pages/BusStockPage';
 import ReturnPage     from './pages/ReturnPage';
 import AdminUsers from './pages/AdminUsers';
 import AdminArticles from './pages/AdminArticles';
+import WarehouseStockPage from './pages/WarehouseStockPage';
 
 function RequireAuth({ children, adminOnly = false }) {
   const { user, loading } = useAuth();
@@ -63,6 +64,10 @@ function AppRoutes() {
 
       <Route path="/admin/articles" element={
         <RequireAuth adminOnly><Layout><AdminArticles /></Layout></RequireAuth>
+      } />
+
+      <Route path="/admin/warehouse-stock" element={
+        <RequireAuth adminOnly><Layout><WarehouseStockPage /></Layout></RequireAuth>
       } />
 
       <Route path="*" element={<Navigate to={user ? '/order' : '/login'} replace />} />
