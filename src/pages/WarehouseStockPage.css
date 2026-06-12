@@ -504,4 +504,21 @@
     align-items: flex-start;
     gap: 4px;
   }
+  .ws-filters {
+    flex-direction: column;
+  }
+  .ws-search,
+  .ws-cat-select {
+    max-width: 100%;
+    min-width: unset;
+    width: 100%;
+  }
+  /* Verberg minder kritieke kolommen om horizontaal scrollen te minimaliseren */
+  .ws-col-costPrice,
+  .ws-col-totalValue,
+  .ws-col-reservedQty {
+    display: none;
+  }
+  .ws-col-category { min-width: 100px; }
+  .ws-lot-detail-cell { padding: 10px 12px 14px 16px; }
 }

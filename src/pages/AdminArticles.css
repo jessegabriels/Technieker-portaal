@@ -58,4 +58,7 @@
   .article-form { grid-template-columns: 1fr; }
   .articles-toolbar { flex-direction: column; align-items: stretch; }
   .toolbar-left { flex-direction: column; }
+  .toolbar-right { flex-wrap: wrap; }
+  .import-controls { flex-direction: column; align-items: stretch; }
+  .import-controls .form-input { width: 100% !important; }
 }

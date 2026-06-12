@@ -147,8 +147,17 @@
 
 @media (max-width: 700px) {
   .picking-card-header { flex-direction: column; align-items: flex-start; }
-  .picking-card-actions { width: 100%; justify-content: space-between; }
-  .pickup-tabs { overflow-x: auto; }
+  .picking-card-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+  .pickup-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* verberg scrollbar op Firefox */
+  }
+  .pickup-tabs::-webkit-scrollbar { display: none; }
+  .pickup-tab { white-space: nowrap; flex-shrink: 0; }
+  .picking-detail { padding: 10px 12px 14px; }
+  .picking-locations { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .item-main-row { flex-wrap: wrap; }
 }
 
 /* Klantnaam in pickingkaart */

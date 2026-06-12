@@ -108,7 +108,8 @@ export default function AdminUsers() {
       </div>
 
       <div className="card" style={{ padding:0, overflow:'hidden' }}>
-        <table className="table">
+        <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+        <table className="table" style={{ minWidth: 580 }}>
           <thead>
             <tr><th>Naam</th><th>Gebruikersnaam</th><th>Afdeling</th><th>Rol</th><th>Status</th><th></th></tr>
           </thead>
@@ -134,6 +135,7 @@ export default function AdminUsers() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showForm && (

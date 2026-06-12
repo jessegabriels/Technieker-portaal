@@ -114,6 +114,13 @@
   .browser-filters { flex-direction: column; }
 }
 
+@media (max-width: 480px) {
+  .article-card { flex-wrap: wrap; }
+  .article-info { min-width: 0; flex: 1 1 100%; }
+  .qty-control { width: 100%; justify-content: flex-end; }
+  .cart-items { max-height: 220px; }
+}
+
 /* Categorie tag op artikel card */
 .article-top-row {
   display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap;

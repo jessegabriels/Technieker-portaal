@@ -85,7 +85,7 @@
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7);
   display: flex; align-items: center; justify-content: center;
-  z-index: 1000; padding: 20px; animation: fadeIn 0.2s ease;
+  z-index: 1000; padding: 16px; animation: fadeIn 0.2s ease;
 }
 .modal {
   background: var(--surface); border: 1px solid var(--border2);
@@ -96,6 +96,11 @@
 .modal-title {
   font-family: var(--font-display); font-size: 20px; font-weight: 700;
   color: var(--text); margin-bottom: 24px;
+}
+
+@media (max-width: 520px) {
+  .modal { padding: 20px 16px; border-radius: var(--radius); }
+  .modal-title { font-size: 17px; margin-bottom: 16px; }
 }
 
 /* ── LICHT THEMA OVERRIDES ─────────────────────────────────────────────────── */

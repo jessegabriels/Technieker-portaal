@@ -211,7 +211,8 @@ export default function AdminArticles() {
             Geen artikelen gevonden.
           </div>
         ) : (
-          <table className="table">
+          <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+          <table className="table" style={{ minWidth: 680 }}>
             <thead>
               <tr>
                 <th>Ref</th><th>Naam</th><th>Eenheid</th><th>Categorie</th>
@@ -261,6 +262,7 @@ export default function AdminArticles() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

@@ -55,6 +55,8 @@
 /* Main */
 .main-wrap {
   flex: 1; margin-left: 240px; display: flex; flex-direction: column; min-height: 100vh;
+  overflow-x: hidden; /* voorkom horizontaal scrollen van de pagina */
+  min-width: 0;
 }
 .topbar {
   position: sticky; top: 0; z-index: 100;
@@ -74,7 +76,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
+  .sidebar { transform: translateX(-100%); top: 56px; /* start onder de topbar */ }
   .sidebar.open { transform: translateX(0); box-shadow: var(--shadow); }
   .main-wrap { margin-left: 0; }
   .menu-toggle { display: flex; }
@@ -220,7 +222,7 @@
 
 @media (max-width: 768px) {
   .sidebar-close-btn { display: flex; align-items: center; }
-  .sidebar-overlay   { display: block; }
+  .sidebar-overlay   { display: block; top: 56px; /* laat topbar zichtbaar */ }
   /* Zorg dat sidebar boven de overlay staat */
   .sidebar { z-index: 100; }
 }

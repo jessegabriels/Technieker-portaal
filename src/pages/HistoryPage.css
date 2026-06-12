@@ -22,8 +22,16 @@
 
 .order-detail {
   border-top: 1px solid var(--border); padding: 0 20px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
-.order-detail .table { margin-top: 12px; }
+.order-detail .table { margin-top: 12px; min-width: 380px; }
+
+@media (max-width: 600px) {
+  .order-row-header { flex-wrap: wrap; gap: 8px; }
+  .order-row-right  { flex-wrap: wrap; }
+  .order-detail { padding: 0 12px 14px; }
+}
 .order-note { font-size: 13px; color: var(--text2); margin-top: 12px; padding: 10px; background: var(--surface2); border-radius: var(--radius); }
 
 /* Verwijder knop */
