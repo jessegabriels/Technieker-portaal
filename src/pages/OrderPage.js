@@ -42,7 +42,7 @@ export default function OrderPage() {
     stockP
       .then(d => setStockByOdooId(d.stock || {}))
       .catch(() => setStockByOdooId({})); // bij fout: geen indicators tonen
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token]);
 
   // Bepaal stockstatus voor een artikel
   // 'unknown'      → geen odooId, kunnen niet controleren

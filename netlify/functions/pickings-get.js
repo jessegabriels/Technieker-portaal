@@ -110,10 +110,52 @@ exports.handler = async (event) => {
       ? rawPickings.filter(p => !String(p.origin || '').startsWith('RETOUR-'))
       : rawPickings;
 
+    // ── 5. MAOP-blokkering ophalen (enkel voor OUT-richting) ──────────────────
+    // Zoek voor elke OUT-picking met een origin of er een openstaande MAOP-picking
+    // bestaat (destination = bus, zelfde origin, state != done/cancel).
+    // Dit geeft de UI de kans om de bon proactief te vergrendelen.
+    const maopBlockMap = {}; // { origin: [pickingName, ...] }
+
+    if (direction === 'out') {
+      const outOrigins = [...new Set(
+        filteredPickings
+          .filter(p => p.origin && !/^ORD-\d+/i.test(p.origin))
+          .map(p => p.origin)
+      )];
+
+      if (outOrigins.length > 0) {
+        try {
+          const pendingMaops = await odooCall('stock.picking', 'search_read',
+            [[
+              ['origin',           'in',     outOrigins],
+              ['location_dest_id', '=',      locationId],   // bestemming = bus = MAOP
+              ['state',            'not in', ['done', 'cancel']],
+            ]],
+            { fields: ['id', 'name', 'origin'], limit: 100 }
+          );
+          for (const m of (pendingMaops || [])) {
+            if (!m.origin) continue;
+            if (!maopBlockMap[m.origin]) maopBlockMap[m.origin] = [];
+            maopBlockMap[m.origin].push(m.name);
+          }
+        } catch (maopErr) {
+          // niet-fataal: blokkering valt terug op de backend-check in pickings-validate
+          console.warn('MAOP-blokkering ophalen mislukt:', maopErr.message);
+        }
+      }
+    }
+
     const pickings = filteredPickings.map(p => {
       const origin      = p.origin || '';
       // Bestellingen hebben een origin die begint met "ORD-" (portaalbestelling)
       const isOrder     = /^ORD-\d+/i.test(origin);
+
+      // Blokkering: uit-pickings (bus → klant) mogen pas bevestigd worden
+      // als de bijhorende MAOP (magazijn → bus) volledig klaar is.
+      const pendingMaopNames = (direction === 'out' && !isOrder && origin)
+        ? (maopBlockMap[origin] || [])
+        : [];
+      const maopBlocked = pendingMaopNames.length > 0;
 
       return {
         id:           p.id,
@@ -123,6 +165,8 @@ exports.handler = async (event) => {
         scheduledDate: p.scheduled_date || null,
         origin,
         isOrder,
+        maopBlocked,
+        pendingMaopNames,
         partner:      Array.isArray(p.partner_id) && p.partner_id[0] ? p.partner_id[1] : null,
         pickingType:  Array.isArray(p.picking_type_id)  ? p.picking_type_id[1]  : '',
         fromLocation: Array.isArray(p.location_id)      ? p.location_id[1]      : '',

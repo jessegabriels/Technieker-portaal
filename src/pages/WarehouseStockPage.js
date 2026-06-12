@@ -133,7 +133,7 @@ export default function WarehouseStockPage() {
     }
   };
 
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, []); // load is stable (defined in component, no outer deps)
 
   const toggleRow = useCallback((productId) => {
     setExpandedRows(prev => {

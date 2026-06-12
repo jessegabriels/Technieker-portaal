@@ -127,3 +127,25 @@
   display: flex; align-items: center; justify-content: center; gap: 3px;
 }
 [data-theme="light"] .qty-btn-sm { background: var(--surface2); border-color: var(--border2); }
+
+/* ── MAOP-blokkering ─────────────────────────────────────────────────────── */
+.maop-lock-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; font-family: var(--font-display);
+  color: #92400e; background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.35); white-space: nowrap; cursor: default;
+}
+.maop-lock-banner {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-top: 14px; padding: 12px 16px;
+  border-radius: var(--radius);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-left: 4px solid #f59e0b;
+}
+.maop-lock-icon { font-size: 20px; line-height: 1; flex-shrink: 0; padding-top: 1px; }
+.maop-lock-title { font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 3px; font-family: var(--font-display); }
+.maop-lock-sub   { font-size: 12px; color: #78350f; line-height: 1.5; }
+[data-theme="light"] .maop-lock-badge  { background: rgba(245,158,11,0.1); }
+[data-theme="light"] .maop-lock-banner { background: rgba(245,158,11,0.06); }

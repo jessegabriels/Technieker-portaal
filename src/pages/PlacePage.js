@@ -576,7 +576,15 @@ export default function PlacePage() {
                 </div>
 
                 <div className="picking-card-actions">
-                  {canConfirm && (
+                  {picking.maopBlocked ? (
+                    /* ── MAOP nog niet klaar: bon vergrendeld ── */
+                    <div
+                      className="maop-lock-badge"
+                      title={`Bevestig eerst ophaling: ${(picking.pendingMaopNames || []).join(', ')}`}
+                    >
+                      🔒 Wacht op ophaling
+                    </div>
+                  ) : canConfirm && (
                     <>
                       <button
                         className={`btn btn-sm ${editMode.has(String(picking.id)) ? 'btn-primary' : 'btn-ghost'}`}
@@ -616,7 +624,24 @@ export default function PlacePage() {
                     <span>Naar: <strong>{picking.toLocation}</strong></span>
                   </div>
 
-                  {canConfirm && (
+                  {/* MAOP-blokkering: toon duidelijke uitleg in de detail-sectie */}
+                  {picking.maopBlocked && (
+                    <div className="maop-lock-banner">
+                      <span className="maop-lock-icon">🔒</span>
+                      <div>
+                        <div className="maop-lock-title">Ophaling nog niet bevestigd</div>
+                        <div className="maop-lock-sub">
+                          Bevestig eerst de ophaalbon
+                          {picking.pendingMaopNames && picking.pendingMaopNames.length > 0 && (
+                            <> <strong>{picking.pendingMaopNames.join(', ')}</strong></>
+                          )}{' '}
+                          zodat het materiaal in jouw bus zit, voor je het hier kan bevestigen.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!picking.maopBlocked && canConfirm && (
                     <div className="place-action-row">
                       <button className="btn btn-ghost btn-sm"
                         onClick={() => setExtraPicking(picking)}>
@@ -629,7 +654,7 @@ export default function PlacePage() {
                     </div>
                   )}
 
-                  {!canConfirm && (
+                  {!canConfirm && !picking.maopBlocked && (
                     <div className="alert" style={{ marginTop: 12, fontSize: 13,
                       background: 'var(--surface2)', border: '1px solid var(--border)',
                       color: 'var(--text2)' }}>

@@ -65,9 +65,18 @@ exports.handler = async (event) => {
       }
     }
 
-    // ── Stap 1: qty_done instellen op alle move lines ─────────────────────────
-    // Haal ook de moves op voor hun product_uom_qty (gevraagde hoeveelheid)
-    // zodat qty_done nooit hoger is dan wat gevraagd werd
+    // ── Stap 1: Reservering vernieuwen (action_assign) ───────────────────────
+    // Kritiek voor OUT-pickings: de bus was leeg toen de bon aangemaakt werd,
+    // dus de move lines hebben quantity=0. Na MAOP is de bus gevuld; action_assign
+    // herberekent de reserveringen zodat qty_done correct ingesteld kan worden.
+    try {
+      await odooCall('stock.picking', 'action_assign', [[id]]);
+    } catch (assignErr) {
+      console.warn('action_assign warning:', assignErr.message);
+    }
+
+    // ── Stap 2: qty_done instellen op alle move lines ─────────────────────────
+    // Herlaad moves + move lines NA de reservering
     const movesForPicking = await odooCall('stock.move', 'search_read',
       [[['picking_id', '=', id], ['state', 'not in', ['done', 'cancel']]]],
       { fields: ['id', 'product_uom_qty'] }
@@ -82,56 +91,65 @@ exports.handler = async (event) => {
     );
 
     for (const ml of moveLines) {
-      const moveId    = Array.isArray(ml.move_id) ? ml.move_id[0] : ml.move_id;
-      const demanded  = demandedByMoveId[moveId] ?? (ml.quantity || 0);
-      // qty_done = gereserveerd, maar nooit meer dan wat gevraagd is
-      const qtyDone   = Math.min(ml.quantity || 0, demanded);
+      const moveId   = Array.isArray(ml.move_id) ? ml.move_id[0] : ml.move_id;
+      const demanded = demandedByMoveId[moveId] ?? 0;
+      const reserved = ml.quantity || 0;
+      // Gebruik gereserveerde qty als die beschikbaar is, anders gevraagde qty
+      const qtyDone  = Math.min(reserved > 0 ? reserved : demanded, demanded);
       if (qtyDone > 0) {
         await odooCall('stock.move.line', 'write', [[ml.id], { qty_done: qtyDone }]);
       }
     }
 
-    // ── Stap 2: Valideer de picking ───────────────────────────────────────────
+    // ── Stap 3: Valideer de picking ───────────────────────────────────────────
+    // Gooi echte Odoo-fouten door — niet wegstop­pen
     let result;
     try {
       result = await odooCall('stock.picking', 'button_validate', [[id]], {
         context: { immediate_transfer: true },
       });
     } catch (validateErr) {
-      console.warn('button_validate warning:', validateErr.message);
-      result = true;
+      throw new Error('Odoo kon de picking niet bevestigen: ' + validateErr.message);
     }
 
-    // ── Stap 3: Wizard afhandelen indien teruggestuurd ────────────────────────
+    // ── Stap 4: Wizard afhandelen indien teruggestuurd ────────────────────────
     if (result && typeof result === 'object' && result.res_model) {
+      const model = result.res_model;
       try {
-        if (result.res_model === 'stock.backorder.confirmation') {
+        if (model === 'stock.backorder.confirmation') {
           const wizardId = await odooCall('stock.backorder.confirmation', 'create',
-            [{ show_transfers: false }]
+            [{ show_transfers: false, pick_ids: [[6, 0, [id]]] }]
           );
           await odooCall('stock.backorder.confirmation', 'process_cancel_backorder', [[wizardId]]);
-        } else if (result.res_model === 'stock.immediate.transfer') {
+        } else if (model === 'stock.immediate.transfer') {
           const wizardId = await odooCall('stock.immediate.transfer', 'create',
             [{ pick_ids: [[6, 0, [id]]] }]
           );
           await odooCall('stock.immediate.transfer', 'process', [[wizardId]]);
+        } else {
+          console.warn('Onbekend wizard-type na button_validate:', model);
         }
       } catch (wizardErr) {
         console.warn('Wizard verwerking mislukt:', wizardErr.message);
       }
     }
 
-    // ── Eindstatus ophalen ────────────────────────────────────────────────────
+    // ── Stap 5: Eindstatus controleren ───────────────────────────────────────
     const updated    = await odooCall('stock.picking', 'read', [[id]], { fields: ['id', 'name', 'state'] });
     const finalState = updated?.[0]?.state || 'unknown';
+
+    if (finalState !== 'done') {
+      return cors({
+        error: `Picking ${picking.name} kon niet bevestigd worden in Odoo (huidige status: ${finalState}). ` +
+               `Controleer of alle artikelen beschikbaar zijn en probeer opnieuw.`,
+      }, 400);
+    }
 
     return cors({
       success:     true,
       pickingName: picking.name,
       state:       finalState,
-      message:     finalState === 'done'
-        ? `Picking ${picking.name} succesvol bevestigd.`
-        : `Picking ${picking.name} verwerkt (status: ${finalState}).`,
+      message:     `Picking ${picking.name} succesvol bevestigd.`,
     });
 
   } catch (err) {
